@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using KnowledgeBase.WellFormedNames.Exceptions;
+using KnowledgeBase.Exceptions;
 
 namespace KnowledgeBase.WellFormedNames
 {
@@ -36,10 +36,12 @@ namespace KnowledgeBase.WellFormedNames
 		public const string SYMBOL_VALIDATION_PATTERN = @"(("+VARIABLE_SYMBOL_VALIDATION_PATTERN+")|("+VALUE_SYMBOL_VALIDATION_PATTERN+"))";
 		private readonly static Regex VALIDATION_REGEX = new Regex("^"+SYMBOL_VALIDATION_PATTERN+"$");
 
+		public const string NIL_STRING = "-";
 		public const string SELF_STRING = "SELF";
 		public const string UNIVERSAL_STRING = "*";
 		public const string AGENT_STRING = "[AGENT]";
 
+		public static readonly Symbol NIL_SYMBOL = new Symbol(NIL_STRING);
 		public static readonly Symbol SELF_SYMBOL = new Symbol(SELF_STRING);
 		public static readonly Symbol UNIVERSAL_SYMBOL = new Symbol(UNIVERSAL_STRING);
 		public static readonly Symbol AGENT_SYMBOL = new Symbol(AGENT_STRING);
@@ -60,12 +62,12 @@ namespace KnowledgeBase.WellFormedNames
 
 		public override bool IsVariable
 		{
-			get { return this.Name.StartsWith("["); }
+			get { return !IsGrounded; }
 		}
 
 		public override bool IsConstant
 		{
-			get { return !(IsUniversal || IsVariable); }
+			get { return !IsUniversal && IsGrounded; }
 		}
 
 		public override int NumberOfTerms
@@ -84,7 +86,7 @@ namespace KnowledgeBase.WellFormedNames
 		{
 			symbolString = symbolString.Trim();
 			if(!VALIDATION_REGEX.IsMatch(symbolString))
-				throw new InvalidSymbolDefinitionException(symbolString);
+				throw new ParsingException(symbolString+" is not a well formated name definition");
 
 			this.IsGrounded = (symbolString[0] != '[');
 			this.Name = this.IsGrounded?symbolString:symbolString.ToLowerInvariant();

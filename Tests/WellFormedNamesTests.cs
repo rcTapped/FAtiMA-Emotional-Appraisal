@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using KnowledgeBase.Exceptions;
 using KnowledgeBase.WellFormedNames;
 using KnowledgeBase.WellFormedNames.Collections;
-using KnowledgeBase.WellFormedNames.Exceptions;
 using Exception = System.Exception;
 
 namespace UnitTest.WellFormedNames
@@ -124,7 +124,7 @@ namespace UnitTest.WellFormedNames
 					Assert.AreEqual(s.IsGrounded, d.isGround);
 					Assert.AreEqual(s.HasGhostVariable(), d.isGhost);
 				}
-				catch (InvalidSymbolDefinitionException e)
+				catch (ParsingException e)
 				{
 					if (d.isValid)
 						throw e;

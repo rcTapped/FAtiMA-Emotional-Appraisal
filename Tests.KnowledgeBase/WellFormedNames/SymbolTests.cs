@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using KnowledgeBase.Exceptions;
 using KnowledgeBase.WellFormedNames;
-using KnowledgeBase.WellFormedNames.Exceptions;
 using NUnit.Framework;
 
 namespace Tests.KnowledgeBase.WellFormedNames
@@ -37,7 +37,7 @@ namespace Tests.KnowledgeBase.WellFormedNames
         [TestCase("[]")]
         public void Symbol_InvalidSymbolString_NewSymbol(string s)
         {
-            Assert.Throws<InvalidSymbolDefinitionException>(() => new Symbol(s));
+            Assert.Throws<ParsingException>(() => new Symbol(s));
         }
 
         [TestCase("x")]

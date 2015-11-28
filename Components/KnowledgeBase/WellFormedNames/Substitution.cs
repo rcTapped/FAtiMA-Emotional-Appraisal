@@ -1,5 +1,5 @@
 ﻿using System;
-using KnowledgeBase.WellFormedNames.Exceptions;
+using KnowledgeBase.Exceptions;
 
 namespace KnowledgeBase.WellFormedNames
 {

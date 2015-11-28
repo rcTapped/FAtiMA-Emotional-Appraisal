@@ -124,7 +124,7 @@ namespace KnowledgeBase.WellFormedNames
 			if (!(allowPartial || n1.NumberOfTerms == n2.NumberOfTerms))
 				return null;
 
-            return n1.GetTerms().Zip(n2.GetTerms(), (t1, t2) => Tuple.Create(t1, t2));
+            return n1.GetTerms().Zip(n2.GetTerms(), Tuple.Create);
         }
 
 

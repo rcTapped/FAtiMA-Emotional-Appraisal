@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using KnowledgeBase.WellFormedNames.Exceptions;
+using KnowledgeBase.Exceptions;
 using Utilities;
 
 namespace KnowledgeBase.WellFormedNames
@@ -188,7 +188,7 @@ namespace KnowledgeBase.WellFormedNames
 		private static ComposedName ParseComposedName(string str)
 		{
 			if (str[str.Length - 1] != ')')
-				throw new NameParsingException("Failed to parse name. Expected ')', got '{0}'", str[str.Length - 1]);
+				throw new ParsingException("Failed to parse name. Expected ')', got '{0}'", str[str.Length - 1]);
 
 			int index = str.IndexOf('(');
 

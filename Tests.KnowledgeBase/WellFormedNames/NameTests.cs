@@ -1,6 +1,6 @@
 ﻿using System;
+using KnowledgeBase.Exceptions;
 using KnowledgeBase.WellFormedNames;
-using KnowledgeBase.WellFormedNames.Exceptions;
 using NUnit.Framework;
 
 namespace Tests.KnowledgeBase.WellFormedNames
@@ -41,7 +41,7 @@ namespace Tests.KnowledgeBase.WellFormedNames
         [TestCase("IsPerson(x")]
         public void Parse_InvalidNameString_NewName(string nameString)
         {
-            Assert.Throws<NameParsingException>(() => Name.Parse(nameString));
+            Assert.Throws<ParsingException>(() => Name.Parse(nameString));
         }
 
 

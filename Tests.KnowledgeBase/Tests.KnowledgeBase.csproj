@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MemoryTests.cs" />
+    <Compile Include="WellFormedNames\ConstraintTests.cs" />
     <Compile Include="WellFormedNames\NameSearchTreeTests.cs" />
     <Compile Include="WellFormedNames\UnifierTests.cs" />
     <Compile Include="WellFormedNames\SubstitutionTests.cs" />
