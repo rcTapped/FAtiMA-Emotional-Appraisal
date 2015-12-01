@@ -38,8 +38,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConstraintSetTests.cs" />
     <Compile Include="MemoryTests.cs" />
-    <Compile Include="WellFormedNames\ConstraintTests.cs" />
+    <Compile Include="ConstraintTests.cs" />
     <Compile Include="WellFormedNames\NameSearchTreeTests.cs" />
     <Compile Include="WellFormedNames\UnifierTests.cs" />
     <Compile Include="WellFormedNames\SubstitutionTests.cs" />
