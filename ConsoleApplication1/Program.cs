@@ -18,28 +18,26 @@ namespace ConsoleApplication1
             asset = EmotionalAppraisalAsset.LoadFromFile("F:\\Documents\\Github Projects\\IntelligentAgents\\example.json");
 
             var eventArg = new List<Name>();
-            eventArg.Add((Name) "event(Action,mary,hug,john)");
-            eventArg.Add(Name.BuildName("event(Action,mary,hug,john)"));
+            eventArg.Add((Name) "event(action, mary, hug, john)");
+            eventArg.Add(Name.BuildName("event(action,mary,hug,john)"));
 
             asset.AppraiseEvents(eventArg);
 
-            Console.WriteLine(asset.Mood);
+            Console.WriteLine("Mood: " + asset.Mood);
 
             foreach (var emotion in asset.ActiveEmotions)
             {
-                Console.WriteLine(emotion.Type);
-                Console.WriteLine(emotion.Intensity);
+                Console.WriteLine(emotion.Type + ": " + emotion.Intensity);
             }
 
             asset.Update();
 
             Console.WriteLine("Update");
-            Console.WriteLine(asset.Mood);
+            Console.WriteLine("Mood: " + asset.Mood);
 
             foreach (var emotion in asset.ActiveEmotions)
             {
-                Console.WriteLine(emotion.Type);
-                Console.WriteLine(emotion.Intensity);
+                Console.WriteLine(emotion.Type + ": " + emotion.Intensity);
             }
 
             Console.ReadLine();

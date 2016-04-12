@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="RageAssetManager">
+      <HintPath>..\..\..\Universiteit Utrecht\Master Thesis\FAtiMA-Emotional-Appraisal-master\DllDependencies\RageAssetManager.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,11 +46,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Drives.cs" />
+    <Compile Include="Goals.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Components\KnowledgeBase\KnowledgeBase.csproj">
+      <Project>{a632a90a-0ee6-430f-acf2-25bb7ced21e7}</Project>
+      <Name>KnowledgeBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EmotionalAppraisal\EmotionalAppraisal.csproj">
+      <Project>{0a2a1ee9-bd5d-44aa-a22d-291612488f06}</Project>
+      <Name>EmotionalAppraisal</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
