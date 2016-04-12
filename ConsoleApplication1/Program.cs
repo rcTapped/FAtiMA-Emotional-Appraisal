@@ -15,11 +15,11 @@ namespace ConsoleApplication1
         {
             EmotionalAppraisalAsset asset;
 
-            asset = EmotionalAppraisalAsset.LoadFromFile("F:\\Documents\\Universiteit Utrecht\\Master Thesis\\example.json");
+            asset = EmotionalAppraisalAsset.LoadFromFile("F:\\Documents\\Github Projects\\IntelligentAgents\\example.json");
 
             var eventArg = new List<Name>();
-            eventArg.Add(Name.BuildName("event(action,mary,hug,john)"));
-            eventArg.Add(Name.BuildName("event(action,mary,hug,john)"));
+            eventArg.Add((Name) "event(Action,mary,hug,john)");
+            eventArg.Add(Name.BuildName("event(Action,mary,hug,john)"));
 
             asset.AppraiseEvents(eventArg);
 
