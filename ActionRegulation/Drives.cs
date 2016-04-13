@@ -1,27 +1,25 @@
 ﻿using System;
-using EmotionalAppraisal;
-using KnowledgeBase.WellFormedNames;
-using EmotionalAppraisal.AppraisalRules;
+using EmotionalAppraisal.DTOs;
 
 namespace ActionRegulation
 {
     class Drives
     {
-        // drive values range from 1 to 10
-        public int Energy { get; set; }
-        public int EnergyWeight { get; set; } //importance of drive to agent (range 0 to 1)
+        // drive values range from -10 to 10
+        public float Energy { get; set; }
+        public float EnergyWeight { get; set; } //importance of drive to agent (range 0 to 1)
 
-        public int Integrity { get; set; }
-        public int IntegritWeighty { get; set; }
+        public float Integrity { get; set; }
+        public float IntegrityWeight { get; set; }
 
-        public int Affiliation { get; set; }
-        public int AffiliationWeight { get; set; }
+        public float Affiliation { get; set; }
+        public float AffiliationWeight { get; set; }
 
-        public int Certainty { get; set; }
-        public int CertaintyWeight { get; set; }
+        public float Certainty { get; set; }
+        public float CertaintyWeight { get; set; }
 
-        public int Competence { get; set; }
-        public int CompetenceWeight { get; set; }
+        public float Competence { get; set; }
+        public float CompetenceWeight { get; set; }
 
         /* fatima occ emotions
             admiration
@@ -34,29 +32,130 @@ namespace ActionRegulation
             reproach
             shame
         */
-        public void DriveToAppraisalRule()
+        
+        // create an appraisal rule based on the average drive gain/loss from a goal
+        public AppraisalRuleDTO GoalToAppraisalRule(Goal goal)
         {
+            AppraisalRuleDTO appraisalRule = new AppraisalRuleDTO();
 
+            float averageEffect = (ExpectedEnergy(goal.EnergyEffect) + ExpectedIntegrity(goal.IntegrityEffect) + ExpectedAffiliation(goal.AffiliationEffect)) / 3; //average drive gain/loss
+
+            appraisalRule.Desirability = averageEffect;
+            appraisalRule.Praiseworthiness = averageEffect;
+
+            if(averageEffect>0)
+                appraisalRule.EventMatchingTemplate = "event(action,*," + goal.Name + "(gain),self)";
+            else
+                appraisalRule.EventMatchingTemplate = "event(action,*," + goal.Name + "(lose),self)";
+
+            return appraisalRule;
         }
 
-        public AppraisalRule EnergyToEmotion(int Energy)
+        // create an appraisal rule based on the average drive gain/loss
+        public AppraisalRuleDTO DrivesToAppraisalRule(float energy, float integrity, float affiliation)
         {
-            if(Energy>0)
-            {
-                AppraisalRule gainEnergyAppraisalRule = new AppraisalRule((Name)"Event(action,*,Energy(gain),self)");
-                gainEnergyAppraisalRule.Desirability = 5;
-                gainEnergyAppraisalRule.Praiseworthiness = 5;
+            AppraisalRuleDTO appraisalRule = new AppraisalRuleDTO();
 
-                return gainEnergyAppraisalRule;
-            } else
-            {
-                AppraisalRule loseEnergyAppraisalRule = new AppraisalRule((Name)"Event(action,*,Energy(lose),self)");
-                loseEnergyAppraisalRule.Desirability = -5;
-                loseEnergyAppraisalRule.Praiseworthiness = -5;
+            float averageEffect = (ExpectedEnergy(energy) + ExpectedIntegrity(integrity) + ExpectedAffiliation(affiliation)) / 3; //average drive gain/loss
 
-                return loseEnergyAppraisalRule;
+            appraisalRule.Desirability = averageEffect;
+            appraisalRule.Praiseworthiness = averageEffect;
+
+            if (averageEffect > 0)
+                appraisalRule.EventMatchingTemplate = "event(action,*,drives(gain),self)";
+            else
+                appraisalRule.EventMatchingTemplate = "event(action,*,drives(lose),self)";
+
+            return appraisalRule;
+        }
+
+        // returns appraisal rule with desirability and praiseworthiness equal to energy level
+        // if energy level is 0 then null is returned as no rule needs to be added for no change
+        public AppraisalRuleDTO EnergyToAppraisalRule(float energy)
+        {
+            AppraisalRuleDTO energyAppraisalRule = new AppraisalRuleDTO();
+
+            if (energy > 0)
+            {
+                energyAppraisalRule.EventMatchingTemplate = "event(action,*,energy(gain),self)";
+                energyAppraisalRule.Desirability = ExpectedEnergy(energy);
+                energyAppraisalRule.Praiseworthiness = ExpectedEnergy(energy);
             }
-            
+            else if (energy < 0)
+            {
+                energyAppraisalRule.EventMatchingTemplate = "event(action,*,energy(lose),self)";
+                energyAppraisalRule.Desirability = ExpectedEnergy(energy);
+                energyAppraisalRule.Praiseworthiness = ExpectedEnergy(energy);
+            }
+            return energyAppraisalRule;
+        }
+
+        // returns appraisal rule with desirability and praiseworthiness equal to integrity level
+        // if integrity level is 0 then null is returned as no rule needs to be added for no change
+        public AppraisalRuleDTO IntegrityToAppraisalRule(float integrity)
+        {
+            AppraisalRuleDTO integrityAppraisalRule = new AppraisalRuleDTO();
+
+            if (integrity > 0)
+            {
+                integrityAppraisalRule.EventMatchingTemplate = "event(action,*,integrity(gain),self)";
+                integrityAppraisalRule.Desirability = ExpectedIntegrity(integrity);
+                integrityAppraisalRule.Praiseworthiness = ExpectedIntegrity(integrity);
+            }
+            else if (integrity < 0)
+            {
+
+                integrityAppraisalRule.EventMatchingTemplate = "event(action,*,integrity(lose),self)";
+                integrityAppraisalRule.Desirability = ExpectedIntegrity(integrity);
+                integrityAppraisalRule.Praiseworthiness = ExpectedIntegrity(integrity);
+            }
+            return integrityAppraisalRule;
+        }
+
+        // returns appraisal rule with desirability and praiseworthiness equal to affiliation level
+        // if affiliation level is 0 then null is returned as no rule needs to be added for no change
+        public AppraisalRuleDTO AffiliationToAppraisalRule(float affiliation)
+        {
+            AppraisalRuleDTO affiliationAppraisalRule = new AppraisalRuleDTO();
+
+            if (affiliation > 0)
+            {
+                affiliationAppraisalRule.EventMatchingTemplate = "event(action,*,affiliation(gain),self)";
+                affiliationAppraisalRule.Desirability = ExpectedAffiliation(affiliation);
+                affiliationAppraisalRule.Praiseworthiness = ExpectedAffiliation(affiliation);
+            }
+            else if (affiliation < 0)
+            {
+                affiliationAppraisalRule.EventMatchingTemplate = "event(action,*,affiliation(lose),self)";
+                affiliationAppraisalRule.Desirability = ExpectedAffiliation(affiliation);
+                affiliationAppraisalRule.Praiseworthiness = ExpectedAffiliation(affiliation);
+            }
+            return affiliationAppraisalRule;
+        }
+
+        public float ExpectedEnergy(float energy)
+        {
+            return Math.Max(-10, Math.Min(10, Energy + (energy * EnergyWeight)));
+        }
+
+        public float ExpectedIntegrity(float integrity)
+        {
+            return Math.Max(-10, Math.Min(10, Integrity + (integrity * IntegrityWeight)));
+        }
+
+        public float ExpectedAffiliation(float affiliation)
+        {
+            return Math.Max(-10, Math.Min(10, Affiliation + (affiliation * AffiliationWeight)));
+        }
+
+        public float ExpectedCertainty(float certainty)
+        {
+            return Math.Max(-10, Math.Min(10, Certainty + (certainty * CertaintyWeight)));
+        }
+
+        public float ExpectedCompetence(float competence)
+        {
+            return Math.Max(-10, Math.Min(10, Competence + (competence * CompetenceWeight)));
         }
     }
 }
