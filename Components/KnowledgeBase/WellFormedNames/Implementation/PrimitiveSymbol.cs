@@ -41,7 +41,7 @@ namespace KnowledgeBase.WellFormedNames
 				return m_value.ToString().ToUpperInvariant().GetHashCode();
 			}
 
-			public override IEnumerable<Name> GetVariableList()
+			public override IEnumerable<Name> GetVariables()
 			{
 				yield break;
 			}
@@ -59,7 +59,7 @@ namespace KnowledgeBase.WellFormedNames
 				return CompareNameWithString(Name.SELF_STRING);
 			}
 
-			protected override Name SwapPerspective(Name original, Name newName)
+			public override Name SwapPerspective(Name original, Name newName)
 			{
 				if (original.Equals(this))
 					return newName;

@@ -5,12 +5,13 @@ using EmotionalAppraisal;
 using EmotionalDecisionMaking;
 using System.Collections.Generic;
 using System.Linq;
+using ActionLibrary;
 using KnowledgeBase.WellFormedNames;
 
 namespace RolePlayCharacter
 {
     [Serializable]
-    public class RolePlayCharacterAsset
+    public class RolePlayCharacterAsset : ICustomSerialization
     {
         #region RolePlayCharater Fields
         [NonSerialized]
@@ -54,8 +55,8 @@ namespace RolePlayCharacter
                 if (!string.IsNullOrEmpty(rpc.EmotionalDecisionMakingSource))
                 {
                     rpc._emotionalDecisionMakingAsset = EmotionalDecisionMakingAsset.LoadFromFile(rpc.EmotionalDecisionMakingSource);
+                    rpc._emotionalDecisionMakingAsset.RegisterEmotionalAppraisalAsset(rpc._emotionalAppraisalAsset);
                 }
-                rpc._emotionalDecisionMakingAsset.RegisterEmotionalAppraisalAsset(rpc._emotionalAppraisalAsset);
             }
             return rpc;
         }

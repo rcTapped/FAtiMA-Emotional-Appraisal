@@ -120,7 +120,7 @@ namespace KnowledgeBase.WellFormedNames
 		/// </summary>
 		public abstract IEnumerable<Name> GetLiterals();
 
-		public abstract IEnumerable<Name> GetVariableList();
+		public abstract IEnumerable<Name> GetVariables();
 
 		public abstract bool HasGhostVariable();
 
@@ -129,11 +129,11 @@ namespace KnowledgeBase.WellFormedNames
 		public bool ContainsVariable(Name variable)
 		{
 			if (!variable.IsVariable)
-				throw new ArgumentException("The given Name is not a variable","variable");
+				throw new ArgumentException("The given Name is not a variable",nameof(variable));
 
 			var v = (VariableSymbol) variable;
 
-			return this.GetVariableList().Cast<VariableSymbol>().Any(s => s.Equals(v));
+			return this.GetVariables().Cast<VariableSymbol>().Any(s => s.Equals(v));
 		}
 
 		public Name ApplyPerspective(string name)
@@ -156,7 +156,7 @@ namespace KnowledgeBase.WellFormedNames
 			return SwapPerspective(SELF_SYMBOL, name);
 		}
 
-		protected abstract Name SwapPerspective(Name original, Name newName);
+		public abstract Name SwapPerspective(Name original, Name newName);
 
 		public abstract Name MakeGround(SubstitutionSet bindings);
 		public abstract Name ReplaceUnboundVariables(string id);
@@ -229,7 +229,7 @@ namespace KnowledgeBase.WellFormedNames
 			{
 				set.AddRange(terms);
 				if (set.Count < 2)
-					throw new ArgumentException("Need at least 2 term to create a composed symbol", "terms");
+					return set[0];
 
 				Symbol head = set[0] as Symbol;
 				if (head == null)

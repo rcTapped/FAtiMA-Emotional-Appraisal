@@ -107,9 +107,9 @@ namespace KnowledgeBase.WellFormedNames
 				return Terms.SelectMany(t => t.GetLiterals()).Prepend(RootSymbol);
 			}
 
-			public override IEnumerable<Name> GetVariableList()
+			public override IEnumerable<Name> GetVariables()
 			{
-				return GetTerms().SelectMany(l => l.GetVariableList());
+				return GetTerms().SelectMany(l => l.GetVariables());
 			}
 
 			public override bool HasGhostVariable()
@@ -122,7 +122,7 @@ namespace KnowledgeBase.WellFormedNames
 				return GetTerms().Any(s => s.HasSelf());
 			}
 
-			protected override Name SwapPerspective(Name original, Name newName)
+			public override Name SwapPerspective(Name original, Name newName)
 			{
 				return new ComposedName((Symbol)RootSymbol.SwapPerspective(original,newName), Terms.Select(t => t.SwapPerspective(original,newName)).ToArray());
 			}
