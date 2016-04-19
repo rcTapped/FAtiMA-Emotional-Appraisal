@@ -17,8 +17,8 @@ namespace ActionRegulation
             drives.AffiliationWeight = 1.0f;
 
             EmotionalAppraisalAsset asset;
-
-            asset = EmotionalAppraisalAsset.LoadFromFile("F:\\Documents\\Github Projects\\IntelligentAgents\\example.json");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "..\\example.json");
+            asset = EmotionalAppraisalAsset.LoadFromFile("E:\\Documents\\Github Projects\\IntelligentAgents\\example.json");
             
             //test stuff
 

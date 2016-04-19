@@ -15,7 +15,7 @@ namespace ConsoleApplication1
         {
             EmotionalAppraisalAsset asset;
 
-            asset = EmotionalAppraisalAsset.LoadFromFile("F:\\Documents\\Github Projects\\IntelligentAgents\\example.json");
+            asset = EmotionalAppraisalAsset.LoadFromFile("E:\\Documents\\Github Projects\\IntelligentAgents\\example.json");
 
             var eventArg = new List<Name>();
             eventArg.Add((Name) "event(action, mary, hug, john)");

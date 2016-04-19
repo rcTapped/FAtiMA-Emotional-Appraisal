@@ -31,6 +31,23 @@ namespace ActionRegulation
             pride
             reproach
             shame
+
+            compare with 4 motives van McClelland (find papers)
+
+            achievement(goal-directedness)->? 
+            competence->power
+            novelty vs. control (Too little change vs. too much change) <- achievement is motivation to change things
+            achievement drive not goal specific but trying to find goals to accomplish
+            high affiliation = many social achievements
+            high achievement can mean lower affiiation
+            avoidance -> related to integrity and certainty (unsure of outcome can be dangerous)
+            classification to make the theory work, not how humans think
+
+            make summary of thought process behind the code creation
+
+            provide reasoning for number/value choices where possible(feasibiity) or logical
+            (difference between thinking like a human and behaving like a human)
+
         */
         
         // create an appraisal rule based on the average drive gain/loss from a goal
@@ -38,12 +55,13 @@ namespace ActionRegulation
         {
             AppraisalRuleDTO appraisalRule = new AppraisalRuleDTO();
 
-            float averageEffect = (ExpectedEnergy(goal.EnergyEffect) + ExpectedIntegrity(goal.IntegrityEffect) + ExpectedAffiliation(goal.AffiliationEffect)) / 3; //average drive gain/loss
+            float averageEffect = (ExpectedEnergy(goal.EnergyEffect) + ExpectedIntegrity(goal.IntegrityEffect) 
+                + ExpectedAffiliation(goal.AffiliationEffect)) / 3; //average drive gain/loss
 
             appraisalRule.Desirability = averageEffect;
-            appraisalRule.Praiseworthiness = averageEffect;
+            appraisalRule.Praiseworthiness = ExpectedAffiliation(goal.AffiliationEffect);
 
-            if(averageEffect>0)
+            if (averageEffect>0)
                 appraisalRule.EventMatchingTemplate = "event(action,*," + goal.Name + "(gain),self)";
             else
                 appraisalRule.EventMatchingTemplate = "event(action,*," + goal.Name + "(lose),self)";
@@ -74,19 +92,11 @@ namespace ActionRegulation
         public AppraisalRuleDTO EnergyToAppraisalRule(float energy)
         {
             AppraisalRuleDTO energyAppraisalRule = new AppraisalRuleDTO();
+            
+            energyAppraisalRule.EventMatchingTemplate = "event(action,*,energy(gain),self)";
+            energyAppraisalRule.Desirability = ExpectedEnergy(energy);
+            energyAppraisalRule.Praiseworthiness = ExpectedEnergy(energy);
 
-            if (energy > 0)
-            {
-                energyAppraisalRule.EventMatchingTemplate = "event(action,*,energy(gain),self)";
-                energyAppraisalRule.Desirability = ExpectedEnergy(energy);
-                energyAppraisalRule.Praiseworthiness = ExpectedEnergy(energy);
-            }
-            else if (energy < 0)
-            {
-                energyAppraisalRule.EventMatchingTemplate = "event(action,*,energy(lose),self)";
-                energyAppraisalRule.Desirability = ExpectedEnergy(energy);
-                energyAppraisalRule.Praiseworthiness = ExpectedEnergy(energy);
-            }
             return energyAppraisalRule;
         }
 
@@ -95,20 +105,11 @@ namespace ActionRegulation
         public AppraisalRuleDTO IntegrityToAppraisalRule(float integrity)
         {
             AppraisalRuleDTO integrityAppraisalRule = new AppraisalRuleDTO();
-
-            if (integrity > 0)
-            {
-                integrityAppraisalRule.EventMatchingTemplate = "event(action,*,integrity(gain),self)";
-                integrityAppraisalRule.Desirability = ExpectedIntegrity(integrity);
-                integrityAppraisalRule.Praiseworthiness = ExpectedIntegrity(integrity);
-            }
-            else if (integrity < 0)
-            {
-
-                integrityAppraisalRule.EventMatchingTemplate = "event(action,*,integrity(lose),self)";
-                integrityAppraisalRule.Desirability = ExpectedIntegrity(integrity);
-                integrityAppraisalRule.Praiseworthiness = ExpectedIntegrity(integrity);
-            }
+            
+            integrityAppraisalRule.EventMatchingTemplate = "event(action,*,integrity(gain),self)";
+            integrityAppraisalRule.Desirability = ExpectedIntegrity(integrity);
+            integrityAppraisalRule.Praiseworthiness = ExpectedIntegrity(integrity);
+            
             return integrityAppraisalRule;
         }
 
@@ -117,19 +118,11 @@ namespace ActionRegulation
         public AppraisalRuleDTO AffiliationToAppraisalRule(float affiliation)
         {
             AppraisalRuleDTO affiliationAppraisalRule = new AppraisalRuleDTO();
-
-            if (affiliation > 0)
-            {
-                affiliationAppraisalRule.EventMatchingTemplate = "event(action,*,affiliation(gain),self)";
-                affiliationAppraisalRule.Desirability = ExpectedAffiliation(affiliation);
-                affiliationAppraisalRule.Praiseworthiness = ExpectedAffiliation(affiliation);
-            }
-            else if (affiliation < 0)
-            {
-                affiliationAppraisalRule.EventMatchingTemplate = "event(action,*,affiliation(lose),self)";
-                affiliationAppraisalRule.Desirability = ExpectedAffiliation(affiliation);
-                affiliationAppraisalRule.Praiseworthiness = ExpectedAffiliation(affiliation);
-            }
+            
+            affiliationAppraisalRule.EventMatchingTemplate = "event(action,*,affiliation(gain),self)";
+            affiliationAppraisalRule.Desirability = ExpectedAffiliation(affiliation);
+            affiliationAppraisalRule.Praiseworthiness = ExpectedAffiliation(affiliation);
+            
             return affiliationAppraisalRule;
         }
 
