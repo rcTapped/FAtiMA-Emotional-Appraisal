@@ -31,25 +31,26 @@ namespace ActionRegulation
             pride
             reproach
             shame
-
-            compare with 4 motives van McClelland (find papers)
-
-            achievement(goal-directedness)->? 
-            competence->power
-            novelty vs. control (Too little change vs. too much change) <- achievement is motivation to change things
-            achievement drive not goal specific but trying to find goals to accomplish
-            high affiliation = many social achievements
-            high achievement can mean lower affiiation
-            avoidance -> related to integrity and certainty (unsure of outcome can be dangerous)
-            classification to make the theory work, not how humans think
-
-            make summary of thought process behind the code creation
-
-            provide reasoning for number/value choices where possible(feasibiity) or logical
-            (difference between thinking like a human and behaving like a human)
-
         */
         
+        public Drives(float energyWeight, float integrityWeight, float affiliationWeight)
+        {
+            Energy = 0.0f;
+            EnergyWeight = energyWeight;
+
+            Integrity = 0.0f;
+            IntegrityWeight = integrityWeight;
+
+            Affiliation = 0.0f;
+            AffiliationWeight = affiliationWeight;
+
+            Certainty = 0.0f;
+            CertaintyWeight = 0.0f; // no effect yet
+
+            Competence = 0.0f;
+            CompetenceWeight = 0.0f; // no effect yet
+        }
+
         // create an appraisal rule based on the average drive gain/loss from a goal
         public AppraisalRuleDTO GoalToAppraisalRule(Goal goal)
         {

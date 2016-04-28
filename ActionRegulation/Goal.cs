@@ -27,10 +27,10 @@ namespace ActionRegulation
             CompetenceEffect = 0;
         }
 
-        public Goal(string name, float energyEffect, float integrityEffect, float affiliationEffect)
+        public Goal(string name, List<string> preConditions, float energyEffect, float integrityEffect, float affiliationEffect)
         {
             Name = name;
-            PreConditions = new List<string>();
+            PreConditions = preConditions;
             SuccessConditions = new List<string>();
             FailureConditions = new List<string>();
             EnergyEffect = energyEffect;
@@ -51,6 +51,20 @@ namespace ActionRegulation
             AffiliationEffect = affiliationEffect;
             CertaintyEffect = certaintyEffect;
             CompetenceEffect = competenceEffect;
+        }
+
+        public bool PreConditionsMet(WorldState state)
+        {
+            bool met = true;
+
+            foreach(string preCondition in PreConditions)
+            {
+                if(!state.containsState(preCondition))
+                {
+                    met = false;
+                }
+            }
+            return met;
         }
     }
 }

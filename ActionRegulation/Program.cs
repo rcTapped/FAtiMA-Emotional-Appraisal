@@ -11,17 +11,21 @@ namespace ActionRegulation
     {
         static void Main(string[] args)
         {
-            Drives drives = new Drives();
-            drives.EnergyWeight = 0.8f;
-            drives.IntegrityWeight = 0.8f;
-            drives.AffiliationWeight = 1.0f;
+            WorldState worldState = new WorldState();
+            worldState.addState("chicken nuggets on sale");
+            worldState.addState("rainy weather");
+            worldState.addState("something something test");
+
+            Drives drives = new Drives(0.8f, 0.8f, 1.0f);
+
+            DriveSatisfaction driveSatisfaction = new DriveSatisfaction(drives);
 
             EmotionalAppraisalAsset asset;
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "..\\example.json");
-            asset = EmotionalAppraisalAsset.LoadFromFile("E:\\Documents\\Github Projects\\IntelligentAgents\\example.json");
-            
-            //test stuff
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\example.json");
+            asset = EmotionalAppraisalAsset.LoadFromFile(path);
 
+            //drive to appraisal rule test stuff
+            /*
             AppraisalRuleDTO rule = drives.EnergyToAppraisalRule(5);
             AppraisalRuleDTO rule2 = drives.EnergyToAppraisalRule(-8);
 
@@ -51,11 +55,16 @@ namespace ActionRegulation
 
             asset.AddOrUpdateAppraisalRule(rule9);
             asset.AddOrUpdateAppraisalRule(rule10);
-
+            */
             //var fileStream = File.Open("F:\\Documents\\Github Projects\\IntelligentAgents\\example.json", FileMode.Open);
             //asset.SaveToFile(fileStream);
 
-            //
+
+            //drive and goal effects test stuff
+
+            Goal testGoal1 = new Goal("get nuggets", new List<string>(new string[] { "chicken nuggets on sale" }), 5, 0, 0);
+            Goal testGoal2 = new Goal("get all the nuggets", new List<string>(new string[] { "chicken nuggets on sale", "infinite nuggets available" }), 10, 0, 0);
+            Goal testGoal3 = new Goal("get a lotta nuggets", new List<string>(new string[] { "chicken nuggets on sale" }), 7, 0, 0);
 
             string input = "";
 
@@ -64,9 +73,10 @@ namespace ActionRegulation
                 input = Console.ReadLine();
 
                 var eventArg = new List<Name>();
-                if(input == "1")
+                ///////////////// drive to appraisal rule test stuff/////////////////////////
+                if (input == "1")
                     eventArg.Add((Name)"event(action,stranger,socialconflict(lose),test)");
-                else if(input == "2")
+                else if (input == "2")
                     eventArg.Add((Name)"event(action,friend,socialconflict(gain),test)");
                 else if (input == "3")
                     eventArg.Add((Name)"event(action,jim,affiliation(lose),test)");
@@ -74,6 +84,20 @@ namespace ActionRegulation
                     eventArg.Add((Name)"event(action,bob,affiliation(gain),test)");
                 else if (input == "5")
                     eventArg.Add((Name)"event(action,food,energy(gain),test)");
+                ///////////////// drive and goal effects test stuff//////////////////////////
+                else if (input == "6")
+                {
+                    driveSatisfaction.addGoal(testGoal1);
+                    driveSatisfaction.addGoal(testGoal3);
+                    driveSatisfaction.ChooseGoal(worldState);
+                    Console.WriteLine("energy: " + drives.Energy + " integrity: " + drives.Integrity + " affiliation: " + drives.Affiliation);
+                }
+                else if (input == "7")
+                {
+                    driveSatisfaction.addGoal(testGoal2);
+                    driveSatisfaction.ChooseGoal(worldState);
+                    Console.WriteLine("energy: " + drives.Energy + "integrity: " + drives.Integrity + "affiliation: " + drives.Affiliation);
+                }
 
                 asset.AppraiseEvents(eventArg);
 
