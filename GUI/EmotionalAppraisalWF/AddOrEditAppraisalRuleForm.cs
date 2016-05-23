@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 using EmotionalAppraisal.DTOs;
 using EmotionalAppraisalWF.Properties;
@@ -42,7 +41,7 @@ namespace EmotionalAppraisalWF
                 EventMatchingTemplate = eventTextBox.Text,
                 Desirability = int.Parse(comboBoxDesirability.Text),
                 Praiseworthiness = int.Parse(comboBoxPraiseworthiness.Text),
-                Conditions = new List<ConditionDTO>(),
+				Conditions = new ConditionSetDTO()
             };
             
             try

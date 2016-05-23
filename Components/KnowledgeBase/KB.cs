@@ -49,15 +49,19 @@ namespace KnowledgeBase
 				}
 
 				if (value == null)
+				{
 					m_perspectives.Remove(perspective);
+					if (m_perspectives.Count == 0)
+						m_perspectives = null;
+				}
 				else
 					m_perspectives[perspective] = value;
 			}
 
-			//public bool IsEmpty()
-			//{
-			//	return (m_perspectives == null) && (m_universal == null);
-			//}
+			public bool IsEmpty()
+			{
+				return (m_perspectives == null) && (m_universal == null);
+			}
 
 			public IEnumerable<KeyValuePair<Name, PrimitiveValue>> GetPerspectives()
 			{
@@ -111,7 +115,23 @@ namespace KnowledgeBase
 
 		#region Dynamic Property Registry
 
+		public void RegistDynamicProperty(Name propertyTemplate, DynamicPropertyCalculator surogate)
+		{
+			internal_RegistDynamicProperty(propertyTemplate, surogate, propertyTemplate.GetVariables().Distinct().ToArray());
+		}
+
 		public void RegistDynamicProperty(Name propertyTemplate, DynamicPropertyCalculator surogate, IEnumerable<string> arguments)
+		{
+			Name[] args;
+			if (arguments == null)
+				args = new Name[0];
+			else
+				args = arguments.Distinct().Select(s => Name.BuildName("[" + s + "]")).ToArray();
+
+			internal_RegistDynamicProperty(propertyTemplate,surogate,args);
+		}
+
+		private void internal_RegistDynamicProperty(Name propertyTemplate, DynamicPropertyCalculator surogate, Name[] argumentVariables)
 		{
 			if (surogate == null)
 				throw new ArgumentNullException(nameof(surogate));
@@ -129,12 +149,7 @@ namespace KnowledgeBase
 			if (m_knowledgeStorage.Unify(propertyTemplate).Any())
 				throw new ArgumentException($"The given template {propertyTemplate} will collide with stored constant properties", nameof(propertyTemplate));
 
-			Name[] args;
-			if (arguments == null)
-				args = new Name[0];
-			else
-				args = arguments.Distinct().Select(s => Name.BuildName("[" + s + "]")).ToArray();
-			m_dynamicProperties.Add(propertyTemplate, new DynamicKnowledgeEntry(surogate, args));
+			m_dynamicProperties.Add(propertyTemplate, new DynamicKnowledgeEntry(surogate, argumentVariables));
 		}
 
 		public void UnregistDynamicProperty(Name propertyTemplate)
@@ -149,7 +164,7 @@ namespace KnowledgeBase
 
 		private static void RegistNativeDynamicProperties(KB kb)
 		{
-			kb.RegistDynamicProperty(COUNT_TEMPLATE, CountPropertyCalculator, new[] { "x" });
+			kb.RegistDynamicProperty(COUNT_TEMPLATE, CountPropertyCalculator);
 		}
 
 		//Count
@@ -258,7 +273,6 @@ namespace KnowledgeBase
 				return new[] { Tuples.Create(property.GetPrimitiveValue(), constraints) };
 			}
 
-			perspective = perspective.ApplyPerspective(Perspective);
 			var ToMList = AssertPerspective(perspective, nameof(perspective));
 
 			return internal_AskPossibleProperties(property, ToMList, constraints);
@@ -423,7 +437,6 @@ namespace KnowledgeBase
 			if (!property.IsConstant)
 				throw new ArgumentException("The given property name is not constant. Only constant names can be stored",nameof(property));
 
-			perspective = perspective.ApplyPerspective(Perspective);
 			var ToMList = AssertPerspective(perspective, nameof(perspective));
 			property = RemovePropertyPerspective(property, ToMList);
 
@@ -444,6 +457,8 @@ namespace KnowledgeBase
 
 			var mind_key = ToMList2Key(ToMList);
 			entry.TellValueFor(mind_key,value);
+			if (entry.IsEmpty())
+				m_knowledgeStorage.Remove(fact);
 		}
 
 		private Name RemovePropertyPerspective(Name property, List<Name> ToMList)
@@ -526,6 +541,8 @@ namespace KnowledgeBase
 		{
 			if(perspective == Name.NIL_SYMBOL)
 				throw new ArgumentException("Perspectives cannot contain NIL symbol",argumentName);
+
+			perspective = perspective.ApplyPerspective(Perspective);
 
 			List<Name> ToMList = new List<Name>();
 			if (perspective.IsUniversal)
@@ -661,7 +678,7 @@ namespace KnowledgeBase
 			return Name.BuildName(str);
 		}
 
-		public void GetObjectData(ISerializationData dataHolder)
+		public void GetObjectData(ISerializationData dataHolder, ISerializationContext context)
 		{
 			dataHolder.SetValue("Perspective",Perspective);
 			var knowledge = dataHolder.ParentGraph.CreateObjectData();
@@ -684,7 +701,7 @@ namespace KnowledgeBase
 			}
 		}
 
-		public void SetObjectData(ISerializationData dataHolder)
+		public void SetObjectData(ISerializationData dataHolder, ISerializationContext context)
 		{
 			Perspective = dataHolder.GetValue<Name>("Perspective");
 			var knowledge = dataHolder.GetValueGraphNode("Knowledge");

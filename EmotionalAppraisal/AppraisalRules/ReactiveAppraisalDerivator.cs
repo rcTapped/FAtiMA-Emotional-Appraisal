@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using AutobiographicMemory;
 using EmotionalAppraisal.Components;
 using EmotionalAppraisal.DTOs;
@@ -12,7 +11,6 @@ using KnowledgeBase.Conditions;
 using KnowledgeBase.DTOs.Conditions;
 using KnowledgeBase.WellFormedNames;
 using KnowledgeBase.WellFormedNames.Collections;
-using Utilities;
 
 namespace EmotionalAppraisal.AppraisalRules
 {
@@ -56,24 +54,22 @@ namespace EmotionalAppraisal.AppraisalRules
 		/// <param name="emotionalAppraisalRule">the AppraisalRule to add</param>
 		public void AddOrUpdateAppraisalRule(AppraisalRuleDTO emotionalAppraisalRuleDTO)
 		{
-		    AppraisalRule existingRule = null; 
-            var existingRulePair = findExistingAppraisalRule(emotionalAppraisalRuleDTO.Id, out existingRule);
-
-		    if (existingRule == null)
+			AppraisalRule existingRule = GetAppraisalRule(emotionalAppraisalRuleDTO.Id);
+		    if (existingRule != null)
 		    {
-		        this.AddEmotionalReaction(new AppraisalRule(emotionalAppraisalRuleDTO));
+				RemoveAppraisalRule(existingRule);
+				existingRule.Desirability = emotionalAppraisalRuleDTO.Desirability;
+				existingRule.Praiseworthiness = emotionalAppraisalRuleDTO.Praiseworthiness;
+				existingRule.EventName = Name.BuildName(emotionalAppraisalRuleDTO.EventMatchingTemplate);
 		    }
 		    else
 		    {
-		        existingRule.Desirability = emotionalAppraisalRuleDTO.Desirability;
-		        existingRule.Praiseworthiness = emotionalAppraisalRuleDTO.Praiseworthiness;
-                existingRule.EventName = Name.BuildName(emotionalAppraisalRuleDTO.EventMatchingTemplate);
-                Rules.Remove(existingRulePair);
-                Rules.Add(existingRule.EventName, existingRulePair.Value);
+			    existingRule = new AppraisalRule(emotionalAppraisalRuleDTO);
 		    }
+			AddEmotionalReaction(existingRule);
 		}
 
-        private void AddEmotionalReaction(AppraisalRule appraisalRule)
+        public void AddEmotionalReaction(AppraisalRule appraisalRule)
         {
             var name = appraisalRule.EventName;
             HashSet<AppraisalRule> ruleSet;
@@ -85,78 +81,73 @@ namespace EmotionalAppraisal.AppraisalRules
             ruleSet.Add(appraisalRule);
         }
 
+		public void RemoveAppraisalRule(AppraisalRule appraisalRule)
+		{
+			HashSet<AppraisalRule> ruleSet;
+			if (Rules.TryGetValue(appraisalRule.EventName, out ruleSet))
+			{
+				AppraisalRule ruleToRemove = null;
+				foreach (var rule in ruleSet)
+				{
+					if (rule.Id == appraisalRule.Id)
+					{
+						ruleToRemove = rule;
+					}
+				}
+				if (ruleToRemove != null)
+				{
+					ruleSet.Remove(ruleToRemove);
+				}
+			}
+		}
 
-        //todo: this method is overly complex due to the nature of how rules are stored. with time try to refactor this
-        private KeyValuePair<Name, HashSet<AppraisalRule>> findExistingAppraisalRule(Guid id, out AppraisalRule rule)
-	    {
-	        foreach (var ruleNamePair in Rules)
-	        {
-	            var ruleSet = ruleNamePair.Value;
-	            foreach (var appraisalRule in ruleSet)
-	            {
-                    if (appraisalRule.Id == id)
-                    {
-                        rule = appraisalRule;
-                        return ruleNamePair;
-                    }
-                }
-	        }
-            rule = null;
-            return Rules.FirstOrDefault();
-	    }
+		public AppraisalRule GetAppraisalRule(Guid id)
+		{
+			return Rules.SelectMany(r => r.Value).FirstOrDefault(a => a.Id == id);
+		}
+
+		////todo: this method is overly complex due to the nature of how rules are stored. with time try to refactor this
+  //      private KeyValuePair<Name, HashSet<AppraisalRule>> findExistingAppraisalRule(Guid id, out AppraisalRule rule)
+	 //   {
+	 //       foreach (var ruleNamePair in Rules)
+	 //       {
+	 //           var ruleSet = ruleNamePair.Value;
+	 //           foreach (var appraisalRule in ruleSet)
+	 //           {
+  //                  if (appraisalRule.Id == id)
+  //                  {
+  //                      rule = appraisalRule;
+  //                      return ruleNamePair;
+  //                  }
+  //              }
+	 //       }
+  //          rule = null;
+  //          return Rules.FirstOrDefault();
+	 //   }
         
-        public Guid AddAppraisalRuleCondition(Guid appraisalRuleId, ConditionDTO conditionDto)
+        public void AddAppraisalRuleCondition(Guid appraisalRuleId, string conditionString)
         {
-            AppraisalRule existingRule = null;
-            findExistingAppraisalRule(appraisalRuleId, out existingRule);
+	        AppraisalRule existingRule = GetAppraisalRule(appraisalRuleId);
             if (existingRule != null)
             {
-                var condition = Condition.Parse(conditionDto.Condition);
+                var condition = Condition.Parse(conditionString);
                 existingRule.Conditions = existingRule.Conditions.Add(condition);
-                return condition.Id;
             }
-            return Guid.Empty;
         }
 
-        public void RemoveAppraisalRuleCondition(Guid appraisalRuleId, ConditionDTO conditionDto)
+        public void RemoveAppraisalRuleCondition(Guid appraisalRuleId, string conditionString)
         {
-            AppraisalRule existingRule;
-            findExistingAppraisalRule(appraisalRuleId, out existingRule);
+	        AppraisalRule existingRule = GetAppraisalRule(appraisalRuleId);
             if (existingRule != null)
             {
-                var condition = existingRule.Conditions.FirstOrDefault(c => c.Id == conditionDto.Id);
-                if (condition != null)
-                {
-                    existingRule.Conditions = existingRule.Conditions.Remove(condition);
-                }
+				var c = Condition.Parse(conditionString);
+	            existingRule.Conditions = existingRule.Conditions.Remove(c);
             }
         }
-
-
-        public void RemoveAppraisalRule(AppraisalRule appraisalRule)
-	    {
-            HashSet<AppraisalRule> ruleSet;
-	        if (Rules.TryGetValue(appraisalRule.EventName, out ruleSet))
-	        {
-	            AppraisalRule ruleToRemove = null;
-	            foreach (var rule in ruleSet)
-	            {
-	                if (rule.Id == appraisalRule.Id)
-	                {
-	                    ruleToRemove = rule;
-	                }
-	            }
-	            if (ruleToRemove != null)
-	            {
-                    ruleSet.Remove(ruleToRemove);
-                }
-	        }
-	    }
-
 
 	    public IEnumerable<AppraisalRule> GetAppraisalRules()
 	    {
-		    return Rules.Values.SelectMany(set => set);
+	        return Rules.Values.SelectMany(set => set);
 	    }
         
 		#region IAppraisalDerivator Implementation
@@ -203,7 +194,7 @@ namespace EmotionalAppraisal.AppraisalRules
 
 			if (desirability != 0 || praiseworthiness != 0)
 			{
-				var eventName = frame.AppraisedEvent.EventName.ApplyPerspective(emotionalModule.Perspective);
+				var eventName = frame.AppraisedEvent.EventName.ApplyPerspective((Name)emotionalModule.Perspective);
 				AppraisalRule r = new AppraisalRule(eventName,null);
 				r.Desirability = desirability;
 				r.Praiseworthiness = praiseworthiness;
@@ -221,23 +212,23 @@ namespace EmotionalAppraisal.AppraisalRules
 
 		#region Custom Serializer
 
-		public void GetObjectData(ISerializationData dataHolder)
+		public void GetObjectData(ISerializationData dataHolder, ISerializationContext context)
 		{
 			dataHolder.SetValue("AppraisalWeight",AppraisalWeight);
 			dataHolder.SetValue("Rules",Rules.Values.SelectMany(set => set).ToArray());
 		}
 
-		public void SetObjectData(ISerializationData dataHolder)
+		public void SetObjectData(ISerializationData dataHolder, ISerializationContext context)
 		{
 			AppraisalWeight = dataHolder.GetValue<short>("AppraisalWeight");
 			var rules = dataHolder.GetValue<AppraisalRule[]>("Rules");
 			Rules.Clear();
-			foreach (var r in rules)
-				AddEmotionalReaction(r);
+		    foreach (var r in rules)
+		    {
+                AddEmotionalReaction(r);
+            }
 		}
 
 		#endregion
-
-	  
 	}
 }

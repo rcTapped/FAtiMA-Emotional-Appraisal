@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using ActionLibrary;
 using EmotionalDecisionMaking.DTOs;
 using GAIPS.Serialization;
-using GAIPS.Serialization.SerializationGraph;
 using KnowledgeBase.Conditions;
 using KnowledgeBase.WellFormedNames;
 
@@ -15,7 +12,11 @@ namespace EmotionalDecisionMaking
 		private const float DEFAULT_ACTIVATION_COOLDOWN = 1f;
 		private DateTime m_lastActivationTimestamp;
 
-		public float ActivationCooldown { get; set; }
+		private float m_activationCooldown;
+		public float ActivationCooldown {
+			get { return m_activationCooldown; }
+			set { m_activationCooldown = value < 0 ? 0 : value; }
+		}
 
 		public bool IsCoolingdown
 		{
@@ -24,16 +25,17 @@ namespace EmotionalDecisionMaking
 
 		public ActionTendency(Name actionName) : this(actionName,Name.NIL_SYMBOL) {}
 
-		public ActionTendency(Name actionName, Name target) : this(actionName, target, Enumerable.Empty<Condition>()) { }
+		public ActionTendency(Name actionName, Name target) : this(actionName, target, new ConditionSet()) {}
 
-		public ActionTendency(Name actionName,Name target, IEnumerable<Condition> activationConditions) : base(actionName,target,activationConditions)
+		public ActionTendency(Name actionName, Name target, ConditionSet activationConditions) : base(actionName, target, activationConditions)
 		{
-			ActivationCooldown = DEFAULT_ACTIVATION_COOLDOWN;
+			m_activationCooldown = DEFAULT_ACTIVATION_COOLDOWN;
 		}
 
-		private ActionTendency(ActionTendency other) : base(other)
+		public ActionTendency(ReactionDTO dto)
+			: base(dto)
 		{
-			ActivationCooldown = other.ActivationCooldown;
+			ActivationCooldown = dto.Cooldown;
 		}
 
 		protected override void OnActionGenerated(IAction action)
@@ -41,36 +43,28 @@ namespace EmotionalDecisionMaking
 			m_lastActivationTimestamp = DateTime.UtcNow;
 		}
 
-		public override object Clone()
+		public ReactionDTO ToDTO()
 		{
-			return new ActionTendency(this);
-		}
-
-		public ActionTendenciesDTO ToDTO()
-		{
-			return new ActionTendenciesDTO()
+			return FillDTO(new ReactionDTO()
 			{
-				Id = Id,
-				Action = GetActionTemplate().ToString(),
-				Target = Target.ToString(),
-				Conditions = ActivationConditions.ToDTO(),
 				Cooldown = ActivationCooldown
-			};
+			});
 		}
 
-		public override void GetSerializationData(Graph serializationParent, IObjectGraphNode node, object contextData)
+		public override void GetObjectData(ISerializationData dataHolder, ISerializationContext context)
 		{
-			base.GetSerializationData(serializationParent, node, contextData);
-			if (ActivationCooldown != (float)contextData)
-				node["Cooldown"] = serializationParent.BuildNode(ActivationCooldown);
+			base.GetObjectData(dataHolder, context);
+			if(!(context.Context is float) || (ActivationCooldown != (float)context.Context))
+				dataHolder.SetValue("Cooldown", ActivationCooldown);
 		}
 
-		/// <summary>
-		/// Deserialization constructor
-		/// </summary>
-		public ActionTendency(IObjectGraphNode node, object contextData) : base(node,contextData)
+		public override void SetObjectData(ISerializationData dataHolder, ISerializationContext context)
 		{
-			ActivationCooldown = SerializationServices.GetFieldOrDefault(node, "Cooldown", (float)contextData);
+			base.SetObjectData(dataHolder, context);
+			if (dataHolder.ContainsField("Cooldown"))
+				ActivationCooldown = dataHolder.GetValue<float>("Cooldown");
+			else
+				ActivationCooldown = context.Context as float? ?? DEFAULT_ACTIVATION_COOLDOWN;
 		}
 	}
 }

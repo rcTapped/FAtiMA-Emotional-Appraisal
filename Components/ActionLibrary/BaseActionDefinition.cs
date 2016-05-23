@@ -1,43 +1,63 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using ActionLibrary.DTOs;
 using GAIPS.Serialization;
-using GAIPS.Serialization.SerializationGraph;
 using KnowledgeBase.Conditions;
 using KnowledgeBase.WellFormedNames;
 
 namespace ActionLibrary
 {
-	public abstract class BaseActionDefinition : IActionDefinition
+	[Serializable]
+	public abstract class BaseActionDefinition : ICustomSerialization
 	{
-		public Guid Id { get; }
+		private ConditionSet m_activationConditions = null;
+
+		public Guid Id { get; private set; }
+		public Name Target { get; private set; }
+		internal IActionSelector Manager { get; private set; }
+
 		private Name m_actionTemplate;
 		public Name ActionName {
 			get { return m_actionTemplate.GetFirstTerm(); }
 		}
-		public Name Target { get; }
 
-		public ConditionSet ActivationConditions { get; }
+		public ConditionSet ActivationConditions {
+			get { return m_activationConditions; }
+			set
+			{
+				if(m_activationConditions == value)
+					return;
 
-		protected BaseActionDefinition(Name actionTemplate, Name target, IEnumerable<Condition> activationConditions)
+				var old = m_activationConditions;
+				m_activationConditions = value;
+				Manager?.OnConditionsUpdated(this,old);
+			}
+		}
+
+		private void AssertAndInitialize(Name actionTemplate, Name target, ConditionSet activationConditions)
 		{
 			var terms = actionTemplate.GetTerms().ToArray();
 			var name = terms[0];
 			if (!name.IsPrimitive)
 				throw new ArgumentException("Invalid Action Template format", nameof(actionTemplate));
-			for (int i = 1; i < terms.Length;i++)
+			for (int i = 1; i < terms.Length; i++)
 			{
-				if(terms[i].IsComposed)
+				if (terms[i].IsComposed)
 					throw new ArgumentException("Invalid Action Template format", nameof(actionTemplate));
 			}
 
-			if(target.IsComposed)
+			if (target.IsComposed)
 				throw new ArgumentException("Action Definition Target must be a symbol definition", nameof(target));
 
 			Id = Guid.NewGuid();
 			m_actionTemplate = actionTemplate;
 			Target = target;
-			ActivationConditions = new ConditionSet(activationConditions);
+			ActivationConditions = activationConditions;
+		}
+
+		protected BaseActionDefinition(Name actionTemplate, Name target, ConditionSet activationConditions)
+		{
+			AssertAndInitialize(actionTemplate,target, activationConditions);
 		}
 
 		protected BaseActionDefinition(BaseActionDefinition other)
@@ -48,7 +68,12 @@ namespace ActionLibrary
 			ActivationConditions = new ConditionSet(other.ActivationConditions);
 		}
 
-		public IAction GenerateAction(SubstitutionSet constraints)
+		protected BaseActionDefinition(ActionDefinitionDTO dto)
+		{
+			AssertAndInitialize(Name.BuildName(dto.Action),Name.BuildName(dto.Target),new ConditionSet(dto.Conditions));
+		}
+
+		internal IAction GenerateAction(SubstitutionSet constraints)
 		{
 			var actionName = m_actionTemplate.MakeGround(constraints);
 			if (!actionName.IsGrounded)
@@ -63,48 +88,54 @@ namespace ActionLibrary
 			return a;
 		}
 
-		protected virtual void OnActionGenerated(IAction action){}
+		internal void OnManagerSet(IActionSelector manager)
+		{
+			Manager = manager;
+		}
 
-		public abstract object Clone();
+		protected virtual void OnActionGenerated(IAction action){}
 
 		public Name GetActionTemplate()
 		{
 			return m_actionTemplate;
 		}
 
-		public virtual void GetSerializationData(Graph serializationParent, IObjectGraphNode node, object contextData)
+		protected T FillDTO<T>(T dto) where T : ActionDefinitionDTO
 		{
-			node["Action"] = serializationParent.BuildNode(GetActionTemplate());
-			if (Target != null && Target != Name.NIL_SYMBOL)
-				node["Target"] = serializationParent.BuildNode(Target);
-
-			node["Conditions"] = serializationParent.BuildNode(ActivationConditions);
+			dto.Id = Id;
+			dto.Action = m_actionTemplate.ToString();
+			dto.Target = Target.ToString();
+			dto.Conditions = m_activationConditions.ToDTO();
+			return dto;
 		}
 
-		/// <summary>
-		/// Deserialization constructor
-		/// </summary>
-		protected BaseActionDefinition(IObjectGraphNode node, object contextData)
+		public override int GetHashCode()
 		{
-			var actionTemplate = node["Action"].RebuildObject<Name>();
-			var terms = actionTemplate.GetTerms().ToArray();
-			var name = terms[0];
-			if (!name.IsPrimitive)
-				throw new Exception("Invalid Action Template format");
-			for (int i = 1; i < terms.Length; i++)
-			{
-				if (terms[i].IsComposed)
-					throw new Exception("Invalid Action Template format");
-			}
+			return Id.GetHashCode();
+		}
 
-			var target = SerializationServices.GetFieldOrDefault(node, "Target", Name.NIL_SYMBOL);
-			if (target.IsComposed)
-				throw new ArgumentException("Action Definition Target must be a symbol definition", nameof(target));
+		public override bool Equals(object obj)
+		{
+			var def = obj as BaseActionDefinition;
+			if (def == null)
+				return false;
+			return def.Id == Id;
+		}
+		
+		public virtual void GetObjectData(ISerializationData dataHolder, ISerializationContext context)
+		{
+			dataHolder.SetValue("Action",GetActionTemplate());
+			if (Target != null && Target != Name.NIL_SYMBOL)
+				dataHolder.SetValue("Target",Target);
+			dataHolder.SetValue("Conditions",ActivationConditions);
+		}
 
-			Id = Guid.NewGuid();
-			m_actionTemplate = actionTemplate;
-			Target = target;
-			ActivationConditions = node["Conditions"].RebuildObject<ConditionSet>();
+		public virtual void SetObjectData(ISerializationData dataHolder, ISerializationContext context)
+		{
+			var actionTemplate = dataHolder.GetValue<Name>("Action");
+			var target = dataHolder.ContainsField("Target") ? dataHolder.GetValue<Name>("Target") : Name.NIL_SYMBOL;
+			var conditions = dataHolder.GetValue<ConditionSet>("Conditions");
+			AssertAndInitialize(actionTemplate, target, conditions);
 		}
 	}
 }

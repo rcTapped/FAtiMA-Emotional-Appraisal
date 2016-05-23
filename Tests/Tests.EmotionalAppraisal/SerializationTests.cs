@@ -5,9 +5,8 @@ using EmotionalAppraisal.OCCModel;
 using NUnit.Framework;
 using KnowledgeBase.WellFormedNames;
 using System.IO;
+using EmotionalAppraisal.DTOs;
 using GAIPS.Serialization;
-using KnowledgeBase;
-using KnowledgeBase.Conditions;
 
 namespace Tests.EmotionalAppraisal
 {
@@ -17,7 +16,7 @@ namespace Tests.EmotionalAppraisal
 		private static EmotionalAppraisalAsset BuildTestAsset()
 		{//Emotional System Setup
 			var m_emotionalAppraisalAsset = new EmotionalAppraisalAsset("Agent");
-			m_emotionalAppraisalAsset.SetPerspective((Name)"Test");
+			m_emotionalAppraisalAsset.SetPerspective("Test");
 
 			//Setup Emotional Disposition
 
@@ -89,35 +88,41 @@ namespace Tests.EmotionalAppraisal
 
 			//Setup appraisal rules
 
-			AppraisalRule petAppraisalRule = new AppraisalRule((Name)"Event(EventObject,*,Pet,self)");
-			petAppraisalRule.Desirability = 10;
-			//petAppraisalRule.Like = 7;
-			//m_emotionalAppraisalAsset.AddOrUpdateAppraisalRule(petAppraisalRule);
+			m_emotionalAppraisalAsset.AddOrUpdateAppraisalRule(new AppraisalRuleDTO()
+			{
+				EventMatchingTemplate = "Event(Action,*,Pet,self)",
+				Desirability = 10
+			});
 
-			AppraisalRule slapAppraisalRule = new AppraisalRule((Name)"Event(EventObject,*,Slap,self)");
-			slapAppraisalRule.Desirability = -10;
-			//slapAppraisalRule.Like = -15;
-			//m_emotionalAppraisalAsset.AddOrUpdateAppraisalRule(slapAppraisalRule);
+			m_emotionalAppraisalAsset.AddOrUpdateAppraisalRule(new AppraisalRuleDTO()
+			{
+				EventMatchingTemplate = "Event(Action,*,Slap,self)",
+				Desirability = -10
+			});
 
-			AppraisalRule feedAppraisalRule = new AppraisalRule((Name)"Event(EventObject,*,Feed,self)");
-			feedAppraisalRule.Desirability = 5;
-			feedAppraisalRule.Praiseworthiness = 10;
-			//m_emotionalAppraisalAsset.AddOrUpdateAppraisalRule(feedAppraisalRule);
+			m_emotionalAppraisalAsset.AddOrUpdateAppraisalRule(new AppraisalRuleDTO()
+			{
+				EventMatchingTemplate = "Event(Action, *, Feed, self)",
+				Desirability = 5,
+				Praiseworthiness = 10
+			});
 
-			AppraisalRule screamMad = new AppraisalRule((Name)"Event(EventObject,*,Talk(High,Mad),self)");
-			screamMad.Desirability = -7;
-			screamMad.Praiseworthiness = -15;
-			//screamMad.Like = -4;
-			//m_emotionalAppraisalAsset.AddOrUpdateAppraisalRule(screamMad);
+			m_emotionalAppraisalAsset.AddOrUpdateAppraisalRule(new AppraisalRuleDTO()
+			{
+				EventMatchingTemplate = "Event(Action,*,Talk(High,Mad),self)",
+				Desirability = -7,
+				Praiseworthiness = -15
+			});
 
-			AppraisalRule talkSoftAppraisalRule = new AppraisalRule((Name)"Event(EventObject,*,Talk(Low,Happy),self)");
-			talkSoftAppraisalRule.Praiseworthiness = 5;
-			//talkSoftAppraisalRule.Like = 5;
-			//m_emotionalAppraisalAsset.AddOrUpdateAppraisalRule(talkSoftAppraisalRule);
-
+			m_emotionalAppraisalAsset.AddOrUpdateAppraisalRule(new AppraisalRuleDTO()
+			{
+				EventMatchingTemplate = "Event(Action,*,Talk(Low,Happy),self)",
+				Praiseworthiness = 5
+			});
+			
 			//Generate emotion
 
-			//m_emotionalAppraisalAsset.AppraiseEvents(new []{ (Name)"Event(EventObject,*,Slap(Hard),self)" });
+			m_emotionalAppraisalAsset.AppraiseEvents(new []{ "Event(Action,Player,Slap,self)" });
 
 			//Add knowledge
 			var kb = m_emotionalAppraisalAsset.Kb;

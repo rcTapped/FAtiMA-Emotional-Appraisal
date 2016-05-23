@@ -3,7 +3,6 @@ using System.Windows.Forms;
 using EmotionalAppraisal.DTOs;
 using EmotionalAppraisalWF.Properties;
 using EmotionalAppraisalWF.ViewModels;
-using KnowledgeBase;
 
 namespace EmotionalAppraisalWF
 {
@@ -20,7 +19,7 @@ namespace EmotionalAppraisalWF
             _beliefToEdit = beliefToEdit;
 
             //Default Values 
-            beliefVisibilityComboBox.DataSource = _knowledgeBaseVm.GetKnowledgeVisibilities();
+	        beliefVisibilityComboBox.DataSource = KnowledgeBaseVM.KnowledgeVisibilities;
             beliefVisibilityComboBox.SelectedIndex = 0;
 
             if (beliefToEdit != null)
@@ -30,7 +29,7 @@ namespace EmotionalAppraisalWF
 
                 beliefNameTextBox.Text = beliefToEdit.Name;
                 beliefValueTextBox.Text = beliefToEdit.Value;
-	            beliefVisibilityComboBox.SelectedIndex = beliefVisibilityComboBox.FindString("");//beliefToEdit.Visibility.ToString());
+                beliefVisibilityComboBox.Text = beliefToEdit.Perspective;
             }
         }
 

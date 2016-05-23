@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ActionLibrary;
-using EmotionalDecisionMaking.DTOs;
 using GAIPS.Serialization;
-using GAIPS.Serialization.SerializationGraph;
 using KnowledgeBase;
 using KnowledgeBase.WellFormedNames;
 
@@ -24,7 +22,7 @@ namespace EmotionalDecisionMaking
 
 		public ReactiveActions()
 		{
-			m_actionTendencies = new ActionSelector<ActionTendency>((tendency, set) => !tendency.IsCoolingdown);
+			m_actionTendencies = new ActionSelector<ActionTendency>((tendency,p, set) => !tendency.IsCoolingdown);
 		}
 
 		public void AddActionTendency(ActionTendency at)
@@ -32,42 +30,51 @@ namespace EmotionalDecisionMaking
 			m_actionTendencies.AddActionDefinition(at);
 		}
 
-		public IEnumerable<IAction> SelectAction(KB kb, Name perspective)
+        public void RemoveAction(Guid id)
+        {
+            var action = m_actionTendencies.GetActionDefinition(id);
+            if (action != null)
+            {
+                m_actionTendencies.RemoveActionDefinition(action);
+            }
+        }
+
+        public IEnumerable<IAction> SelectAction(KB kb, Name perspective)
 		{
-			return m_actionTendencies.SelectAction(kb, perspective);
+			return m_actionTendencies.SelectAction(kb, perspective).Select(p => p.Item1);
 		}
 
-		public IEnumerable<ActionTendenciesDTO> GetAllActionTendencies()
+		public IEnumerable<ActionTendency> GetAllActionTendencies()
 		{
-			return m_actionTendencies.GetAllActionDefinitions().Select(at => at.ToDTO());
+			return m_actionTendencies.GetAllActionDefinitions();
 		}
 
-		public ActionTendenciesDTO GetDTOFromGUID(Guid id)
-		{
-			return m_actionTendencies.GetActionDefinition(id).ToDTO();
-		}
+	    public ActionTendency GetActionTendency(Guid id)
+	    {
+	        return m_actionTendencies.GetActionDefinition(id);
+	    }
 
-		public void GetObjectData(ISerializationData dataHolder)
+		
+		public void GetObjectData(ISerializationData dataHolder, ISerializationContext context)
 		{
 			dataHolder.SetValue("DefaultActionCooldown", m_defaultActionCooldown);
-			
-			var actions = dataHolder.ParentGraph.BuildSequenceNode();
-			foreach (var action in m_actionTendencies.GetAllActionDefinitions())
-			{
-				var a = dataHolder.ParentGraph.CreateObjectData();
-				action.GetSerializationData(dataHolder.ParentGraph, a, m_defaultActionCooldown);
-				actions.Add(a);
-			}
-			dataHolder.SetValueGraphNode("ActionTendencies", actions);
+			context.PushContext();
+			context.Context = m_defaultActionCooldown;
+			dataHolder.SetValue("ActionTendencies", m_actionTendencies.GetAllActionDefinitions().ToArray());
+			context.PopContext();
 		}
 
-		public void SetObjectData(ISerializationData dataHolder)
+		public void SetObjectData(ISerializationData dataHolder, ISerializationContext context)
 		{
 			DefaultActionCooldown = dataHolder.GetValue<float>("DefaultActionCooldown");
-			var actions = (ISequenceGraphNode)dataHolder.GetValueGraphNode("ActionTendencies");
-			m_actionTendencies.Clear();
-			foreach (var actionDef in actions.Cast<IObjectGraphNode>())
-				m_actionTendencies.AddActionDefinition(new ActionTendency(actionDef, m_defaultActionCooldown));
+			context.PushContext();
+			context.Context = m_defaultActionCooldown;
+			var ats = dataHolder.GetValue<ActionTendency[]>("ActionTendencies");
+			foreach (var at in ats)
+				m_actionTendencies.AddActionDefinition(at);
+			context.PopContext();
 		}
+
+	    
 	}
 }
