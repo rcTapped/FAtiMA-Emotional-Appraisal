@@ -66,37 +66,60 @@ namespace ActionRegulation
             Goal testGoal2 = new Goal("get all the nuggets", new List<string>(new string[] { "chicken nuggets on sale", "infinite nuggets available" }), 10, 0, 0);
             Goal testGoal3 = new Goal("get a lotta nuggets", new List<string>(new string[] { "chicken nuggets on sale" }), 7, 0, 0);
 
+            ////////////////////////////// goal/action planning manual work ///////////////////////////////////////////
+
+
+            //goals
+            Goal eat = new Goal("eat", new List<string>(new string[] { "have food" }), 6, 0, 0);
+            Goal drink = new Goal("drink", new List<string>(), 2, 0, 0);
+            Goal rest = new Goal("rest", new List<string>(new string[] { "place to rest" }), 7, 0, -1);
+
+            Goal socialize = new Goal("socialize", new List<string>(new string[] { "plan with friends" }), -3, 0, 5);
+            Goal paintball = new Goal("paintball", new List<string>(new string[] { "plan with friends" }), -6, -1, 4);
+
+            //actions
+            Action makeFood = new Action("make food", new List<string>(new string[] { "have groceries" }), new List<string>(new string[] { "have food" }), -0.2f, 0, 0);
+            Action getGroceries = new Action("get groceries", new List<string>(), new List<string>(new string[] { "have groceries" }), -1, 0, 0);
+            
+            Action checkTransportation = new Action("check transportation", new List<string>(), new List<string>(new string[] { "have transportation" }), -0.1f, 0, 0);
+
+            Action makePlans = new Action("make plans", new List<string>(), new List<string>(new string[] { "plan with friends" }), -1, 0, 0);
+
+            Action findPlaceToRest = new Action("find place to rest", new List<string>(), new List<string>(new string[] { "place to rest" }), -1, 0, 0);
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
             string input = "";
 
             while(true)
             {
                 input = Console.ReadLine();
 
-                var eventArg = new List<Name>();
+                var eventArg = new List<String>();
                 ///////////////// drive to appraisal rule test stuff/////////////////////////
                 if (input == "1")
-                    eventArg.Add((Name)"event(action,stranger,socialconflict(lose),test)");
+                    eventArg.Add("event(action,stranger,socialconflict(lose),test)");
                 else if (input == "2")
-                    eventArg.Add((Name)"event(action,friend,socialconflict(gain),test)");
+                    eventArg.Add("event(action,friend,socialconflict(gain),test)");
                 else if (input == "3")
-                    eventArg.Add((Name)"event(action,jim,affiliation(lose),test)");
+                    eventArg.Add("event(action,jim,affiliation(lose),test)");
                 else if (input == "4")
-                    eventArg.Add((Name)"event(action,bob,affiliation(gain),test)");
+                    eventArg.Add("event(action,bob,affiliation(gain),test)");
                 else if (input == "5")
-                    eventArg.Add((Name)"event(action,food,energy(gain),test)");
+                    eventArg.Add("event(action,food,energy(gain),test)");
                 ///////////////// drive and goal effects test stuff//////////////////////////
                 else if (input == "6")
                 {
                     driveSatisfaction.addGoal(testGoal1);
                     driveSatisfaction.addGoal(testGoal3);
-                    driveSatisfaction.ChooseGoal(worldState);
+                    //driveSatisfaction.ChooseGoal(worldState);
                     Console.WriteLine("energy: " + drives.Energy + " integrity: " + drives.Integrity + " affiliation: " + drives.Affiliation);
                 }
                 else if (input == "7")
                 {
                     driveSatisfaction.addGoal(testGoal2);
-                    driveSatisfaction.ChooseGoal(worldState);
-                    Console.WriteLine("energy: " + drives.Energy + "integrity: " + drives.Integrity + "affiliation: " + drives.Affiliation);
+                    //driveSatisfaction.ChooseGoal(worldState);
+                    Console.WriteLine("energy: " + drives.Energy + " integrity: " + drives.Integrity + " affiliation: " + drives.Affiliation);
                 }
 
                 asset.AppraiseEvents(eventArg);

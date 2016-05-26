@@ -40,6 +40,19 @@ namespace ActionRegulation
             CompetenceEffect = 0;
         }
 
+        public Goal(string name, List<string> preConditions, List<string> successConditions, float energyEffect, float integrityEffect, float affiliationEffect)
+        {
+            Name = name;
+            PreConditions = preConditions;
+            SuccessConditions = successConditions;
+            FailureConditions = new List<string>();
+            EnergyEffect = energyEffect;
+            IntegrityEffect = integrityEffect;
+            AffiliationEffect = affiliationEffect;
+            CertaintyEffect = 0;
+            CompetenceEffect = 0;
+        }
+
         public Goal(string name, List<string> preConditions, List<string> successConditions, List<string> failureConditions, float energyEffect, float integrityEffect, float affiliationEffect, float certaintyEffect, float competenceEffect)
         {
             Name = name;

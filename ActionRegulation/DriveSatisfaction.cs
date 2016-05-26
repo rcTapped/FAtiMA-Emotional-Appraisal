@@ -10,6 +10,7 @@ namespace ActionRegulation
     {
         public Drives drives { get; set; }
         public List<Goal> goalList { get; set; }
+        public SortedList<float, Goal> potentialGoals { get; set; }
 
         public DriveSatisfaction(float energyWeight, float integrityWeight, float affiliationWeight)
         {
@@ -33,34 +34,41 @@ namespace ActionRegulation
             goalList.Remove(removeGoal);
         }
 
-        public void ChooseGoal(WorldState state)
+        public void PotentialGoalList(WorldState state)
         {
-            Goal bestGoal = new Goal("temp");
-            float bestBenefit = float.MinValue;
-            List<Goal> potentialGoals = new List<Goal>();
+            potentialGoals = new SortedList<float, Goal>();
 
-            //filter goals whose pre conditions are not met
-            foreach(Goal goal in goalList)
+            //choose good goals to satisfy drives
+            foreach (Goal goal in goalList)
             {
-                if(goal.PreConditionsMet(state))
-                {
-                    potentialGoals.Add(goal);
+                //determine goal drive satisfaction
+                float benefit = drives.ExpectedEnergy(goal.EnergyEffect) + drives.ExpectedIntegrity(goal.IntegrityEffect) + drives.ExpectedAffiliation(goal.AffiliationEffect);
 
-                    //determine goal with greatest benefit
-                    float benefit = drives.ExpectedEnergy(goal.EnergyEffect) + drives.ExpectedIntegrity(goal.IntegrityEffect) + drives.ExpectedAffiliation(goal.AffiliationEffect);
+                // factor in low drive satisfaction urgency
+                // double benefit of very low drives to simulate urgency
+                if (drives.Energy < 2)
+                    benefit += drives.ExpectedEnergy(goal.EnergyEffect);
+                if (drives.Integrity < 2)
+                    benefit += drives.ExpectedIntegrity(goal.IntegrityEffect);
+                if (drives.Affiliation < 2)
+                    benefit += drives.ExpectedAffiliation(goal.AffiliationEffect);
 
-                    if (benefit > bestBenefit)
-                    {
-                        bestGoal = goal;
-                        bestBenefit = benefit;
-                    }
-                }
+                // factor in medium drive satisfaction urgency
+                // double benefit of very low drives to simulate urgency
+                if (drives.Energy < 5)
+                    benefit += 0.5f * drives.ExpectedEnergy(goal.EnergyEffect);
+                if (drives.Integrity < 5)
+                    benefit += 0.5f * drives.ExpectedIntegrity(goal.IntegrityEffect);
+                if (drives.Affiliation < 5)
+                    benefit += 0.5f * drives.ExpectedAffiliation(goal.AffiliationEffect);
+                
+                potentialGoals.Add(benefit, goal);
             }
+        }
 
-            //execute goal and process effects of goal on drives
-            drives.Energy = drives.ExpectedEnergy(bestGoal.EnergyEffect);
-            drives.Integrity = drives.ExpectedIntegrity(bestGoal.IntegrityEffect);
-            drives.Affiliation = drives.ExpectedAffiliation(bestGoal.AffiliationEffect);
+        public void planGoal()
+        {
+
         }
     }
 }
