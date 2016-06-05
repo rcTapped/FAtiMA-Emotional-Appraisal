@@ -51,7 +51,7 @@ namespace RolePlayCharacter
 			{
 				try
 				{
-					_emotionalAppraisalAsset = EmotionalAppraisalAsset.LoadFromFile(ToAbsolutePath(EmotionalAppraisalAssetSource));
+					_emotionalAppraisalAsset = EmotionalAppraisalAsset.LoadFromFile(CurrentStorageProvider, ToAbsolutePath(EmotionalAppraisalAssetSource));
 				}
 				catch (Exception)
 				{
@@ -65,7 +65,7 @@ namespace RolePlayCharacter
 			{
 				try
 				{
-					_emotionalDecisionMakingAsset = EmotionalDecisionMakingAsset.LoadFromFile(ToAbsolutePath(EmotionalDecisionMakingSource));
+					_emotionalDecisionMakingAsset = EmotionalDecisionMakingAsset.LoadFromFile(CurrentStorageProvider,ToAbsolutePath(EmotionalDecisionMakingSource));
 				}
 				catch (Exception)
 				{
@@ -82,10 +82,12 @@ namespace RolePlayCharacter
 			CharacterBody = body;
         }
         
-        public IEnumerable<IAction> PerceptionActionLoop(IEnumerable<string> events)
+        public IAction PerceptionActionLoop(IEnumerable<string> events)
         {
             _emotionalAppraisalAsset.AppraiseEvents(events);
-			return _emotionalDecisionMakingAsset.Decide();
+			var possibleActions = _emotionalDecisionMakingAsset.Decide();
+
+	        return possibleActions.OrderByDescending(a => a.Utility).FirstOrDefault();
         }
 
 		public IActiveEmotion GetStrongestActiveEmotion()
