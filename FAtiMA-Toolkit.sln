@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KnowledgeBase", "Components\KnowledgeBase\KnowledgeBase.csproj", "{A632A90A-0EE6-430F-ACF2-25BB7CED21E7}"
 EndProject
@@ -68,6 +68,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tutorials", "Tutorials", "{2C13F768-C122-4B7F-A08A-9E8AB520F6D2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmotionalAppraisalTutorial", "Examples\EmotionalAppraisalTutorial\EmotionalAppraisalTutorial.csproj", "{43E80CC4-1797-42B0-9A4C-E1D0AA297737}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActionRegulation", "ActionRegulation\ActionRegulation.csproj", "{C83D35A2-4A12-4B78-B29F-736DBFA19172}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -191,6 +193,10 @@ Global
 		{43E80CC4-1797-42B0-9A4C-E1D0AA297737}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43E80CC4-1797-42B0-9A4C-E1D0AA297737}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43E80CC4-1797-42B0-9A4C-E1D0AA297737}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C83D35A2-4A12-4B78-B29F-736DBFA19172}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C83D35A2-4A12-4B78-B29F-736DBFA19172}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C83D35A2-4A12-4B78-B29F-736DBFA19172}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C83D35A2-4A12-4B78-B29F-736DBFA19172}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
