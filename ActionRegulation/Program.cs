@@ -4,6 +4,7 @@ using KnowledgeBase.WellFormedNames;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace ActionRegulation
 {
@@ -62,20 +63,20 @@ namespace ActionRegulation
 
             //drive and goal effects test stuff
 
-            Goal testGoal1 = new Goal("get nuggets", new List<string>(new string[] { "chicken nuggets on sale" }), 5, 0, 0);
-            Goal testGoal2 = new Goal("get all the nuggets", new List<string>(new string[] { "chicken nuggets on sale", "infinite nuggets available" }), 10, 0, 0);
-            Goal testGoal3 = new Goal("get a lotta nuggets", new List<string>(new string[] { "chicken nuggets on sale" }), 7, 0, 0);
+            //Goal testGoal1 = new Goal("get nuggets", new List<string>(new string[] { "chicken nuggets on sale" }), 5, 0, 0);
+            //Goal testGoal2 = new Goal("get all the nuggets", new List<string>(new string[] { "chicken nuggets on sale", "infinite nuggets available" }), 10, 0, 0);
+            //Goal testGoal3 = new Goal("get a lotta nuggets", new List<string>(new string[] { "chicken nuggets on sale" }), 7, 0, 0);
 
             ////////////////////////////// goal/action planning manual work ///////////////////////////////////////////
 
 
             //goals
-            Goal eat = new Goal("eat", new List<string>(new string[] { "have food" }), 6, 0, 0);
-            Goal drink = new Goal("drink", new List<string>(), 2, 0, 0);
-            Goal rest = new Goal("rest", new List<string>(new string[] { "place to rest" }), 7, 0, -1);
+            //Goal eat = new Goal("eat", new List<string>(new string[] { "have food" }), 6, 0, 0);
+            //Goal drink = new Goal("drink", new List<string>(), 2, 0, 0);
+            //Goal rest = new Goal("rest", new List<string>(new string[] { "place to rest" }), 7, 0, -1);
 
-            Goal socialize = new Goal("socialize", new List<string>(new string[] { "plan with friends" }), -3, 0, 5);
-            Goal paintball = new Goal("paintball", new List<string>(new string[] { "plan with friends" }), -6, -1, 4);
+            //Goal socialize = new Goal("socialize", new List<string>(new string[] { "plan with friends" }), -3, 0, 5);
+            //Goal paintball = new Goal("paintball", new List<string>(new string[] { "plan with friends" }), -6, -1, 4);
 
             //actions
             Action makeFood = new Action("make food", new List<string>(new string[] { "have groceries" }), new List<string>(new string[] { "have food" }), -0.2f, 0, 0);
@@ -110,16 +111,50 @@ namespace ActionRegulation
                 ///////////////// drive and goal effects test stuff//////////////////////////
                 else if (input == "6")
                 {
-                    driveSatisfaction.addGoal(testGoal1);
-                    driveSatisfaction.addGoal(testGoal3);
+                    //driveSatisfaction.addGoal(testGoal1);
+                    //driveSatisfaction.addGoal(testGoal3);
                     //driveSatisfaction.ChooseGoal(worldState);
                     Console.WriteLine("energy: " + drives.Energy + " integrity: " + drives.Integrity + " affiliation: " + drives.Affiliation);
                 }
                 else if (input == "7")
                 {
-                    driveSatisfaction.addGoal(testGoal2);
+                    //driveSatisfaction.addGoal(testGoal2);
                     //driveSatisfaction.ChooseGoal(worldState);
                     Console.WriteLine("energy: " + drives.Energy + " integrity: " + drives.Integrity + " affiliation: " + drives.Affiliation);
+                }
+                else if (input == "8")
+                {
+                    List<string> initialState = new List<string>(new string[] { "have(cake)" });
+                    List<Action> actionList = new List<Action>();
+
+                    actionList.Add(new Action("eat(cake)", new List<string>(new string[] { "have(cake)" }), new List<string>(new string[] { "!have(cake)", "eaten(cake)" })));
+                    actionList.Add(new Action("bake(cake)", new List<string>(new string[] { "!have(cake)" }), new List<string>(new string[] { "have(cake)" })));
+
+                    //Goal cake = new Goal("cake", new List<string>(new string[] { "have(cake)", "eaten(cake)" }), 7, 0, 0);
+
+                    //driveSatisfaction.addGoal(cake);
+
+                    driveSatisfaction.printGoalList();
+
+                    Console.WriteLine(driveSatisfaction.chooseGoal().Name);
+
+                    driveSatisfaction.actionPlanner(initialState, actionList, driveSatisfaction.chooseGoal());
+                }
+                else if (input == "9")
+                {
+                    PlanningGraph graph = new PlanningGraph();
+                    graph.CakeExample();
+                }
+                else if ( input == "10")
+                {
+                    List<string> test1 = new List<string>(new string[] { "chicken", "chicken", "bread" });
+                    List<string> test2 = new List<string>(new string[] { "chicken" });
+                    List<string> test4 = new List<string>();
+
+                    IEnumerable<string> test3 = test4.Except(test2);
+
+                    foreach(string val in test3)
+                        Console.WriteLine(val);
                 }
 
                 asset.AppraiseEvents(eventArg);

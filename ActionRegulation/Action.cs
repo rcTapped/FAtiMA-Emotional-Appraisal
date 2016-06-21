@@ -10,7 +10,7 @@ namespace ActionRegulation
     {
         public string Name { get; set; }
         public List<string> PreConditions { get; set; }
-        public List<string> WorldStateEffects { get; set; }
+        public List<string> Effects { get; set; }
         public float EnergyEffect { get; set; }
         public float IntegrityEffect { get; set; }
         public float AffiliationEffect { get; set; }
@@ -21,7 +21,7 @@ namespace ActionRegulation
         {
             Name = name;
             PreConditions = new List<string>();
-            WorldStateEffects = new List<string>();
+            Effects = new List<string>();
             EnergyEffect = 0;
             IntegrityEffect = 0;
             AffiliationEffect = 0;
@@ -29,11 +29,11 @@ namespace ActionRegulation
             CompetenceEffect = 0;
         }
 
-        public Action(string name, List<string> preConditions, List<string> worldStateEffects)
+        public Action(string name, List<string> preConditions, List<string> effects)
         {
             Name = name;
             PreConditions = preConditions;
-            WorldStateEffects = worldStateEffects;
+            Effects = effects;
             EnergyEffect = 0;
             IntegrityEffect = 0;
             AffiliationEffect = 0;
@@ -41,11 +41,11 @@ namespace ActionRegulation
             CompetenceEffect = 0;
         }
 
-        public Action(string name, List<string> preConditions, List<string> worldStateEffects, float energyEffect, float integrityEffect, float affiliationEffect)
+        public Action(string name, List<string> preConditions, List<string> effects, float energyEffect, float integrityEffect, float affiliationEffect)
         {
             Name = name;
             PreConditions = preConditions;
-            WorldStateEffects = worldStateEffects;
+            Effects = effects;
             EnergyEffect = energyEffect;
             IntegrityEffect = integrityEffect;
             AffiliationEffect = affiliationEffect;
