@@ -22,8 +22,8 @@ namespace ActionRegulation
             DriveSatisfaction driveSatisfaction = new DriveSatisfaction(drives);
 
             EmotionalAppraisalAsset asset;
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\example.json");
-            asset = EmotionalAppraisalAsset.LoadFromFile(path);
+            //var path = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\example.json");
+            //asset = EmotionalAppraisalAsset.LoadFromFile(path);
 
             //drive to appraisal rule test stuff
             /*
@@ -157,24 +157,24 @@ namespace ActionRegulation
                         Console.WriteLine(val);
                 }
 
-                asset.AppraiseEvents(eventArg);
+                //asset.AppraiseEvents(eventArg);
 
-                Console.WriteLine("Mood: " + asset.Mood);
+                //Console.WriteLine("Mood: " + asset.Mood);
 
-                foreach (var emotion in asset.ActiveEmotions)
-                {
-                    Console.WriteLine(emotion.Type + ": " + emotion.Intensity);
-                }
+                //foreach (var emotion in asset.ActiveEmotions)
+                //{
+                //    Console.WriteLine(emotion.Type + ": " + emotion.Intensity);
+                //}
 
-                asset.Update();
+                ////asset.Update();
 
-                Console.WriteLine("Update");
-                Console.WriteLine("Mood: " + asset.Mood);
+                //Console.WriteLine("Update");
+                //Console.WriteLine("Mood: " + asset.Mood);
 
-                foreach (var emotion in asset.ActiveEmotions)
-                {
-                    Console.WriteLine(emotion.Type + ": " + emotion.Intensity);
-                }
+                //foreach (var emotion in asset.ActiveEmotions)
+                //{
+                //    Console.WriteLine(emotion.Type + ": " + emotion.Intensity);
+                //}
             }
         }
     }
