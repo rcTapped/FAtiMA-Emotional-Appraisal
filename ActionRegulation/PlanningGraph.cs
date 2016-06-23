@@ -84,6 +84,55 @@ namespace ActionRegulation
                     }
                 }
 
+                //action mutex time!
+                
+                //make use of skip function and the counter i to perform only the needed comparison
+                //since negation of actions is reflexive it doesnt have to be checked both ways
+                //int i = 1;
+
+                //foreach(ActionNode actionNode in actionLayer)
+                //{
+                //    foreach(ActionNode otherActionNode in actionLayer.Skip(i))
+                //    {
+                //        if (actionNode.EffectNegatedBy(otherActionNode))
+                //        {
+                //            actionNode.addMutex(otherActionNode);
+                //            otherActionNode.addMutex(actionNode);
+                //        }
+                //    }
+                //    i++;
+                //}
+
+                //compare each action to each other action
+                foreach (ActionNode actionNode in actionLayer)
+                {
+                    foreach (ActionNode otherActionNode in actionLayer)
+                    {
+                        if (!actionNode.Equals(otherActionNode))
+                        {
+                            //inconsistent effects of actions
+                            if (actionNode.EffectNegatedBy(otherActionNode))
+                                actionNode.addMutex(otherActionNode);
+
+                            //interference of actions
+                            if (actionNode.PreconditionNegatedBy(otherActionNode))
+                                actionNode.addMutex(otherActionNode);
+
+                            //competing needs //////////////////////////CHECK AFTER LITERAL MUTEXES ARE DONE//////////////////////////////////
+                            foreach (Edge edge in actionNode.IncomingEdges)
+                            {
+                                //action node incoming edges should always be from literal nodes
+                                LiteralNode literalNode = (LiteralNode)edge.From;
+
+                                if (literalNode.Mutex.Contains(otherActionNode))
+                                    actionNode.addMutex(otherActionNode);
+                            }
+                        }                        
+                    }
+                }
+
+                //end of action mutex time
+
                 layerCount++;
 
                 ///////////////////////////////////////// literal layer (even) /////////////////////////////////////////////////////
@@ -125,7 +174,7 @@ namespace ActionRegulation
                 //add literals that where in the previous literal layer as maintenance actions
                 foreach (LiteralNode literalNode in previousLiteralLayer)
                 {
-                    bool test = true;
+                    bool nodeAlreadyExists = false;
                     LiteralNode newNode = new LiteralNode(layerCount, literalNode.Literal);     //same literal new layer
 
                     //if literal layer already has this literal then link maintenance action edge to this node instead
@@ -134,12 +183,12 @@ namespace ActionRegulation
                         if (node.Equals(literalNode))
                         {
                             newNode = node;
-                            test = false;
+                            nodeAlreadyExists = true;
                             break;
                         }
                     }
 
-                    if (test)
+                    if (!nodeAlreadyExists)
                     {
                         literalLayer.Add(newNode);
                         nodeList.Add(newNode);
@@ -149,6 +198,49 @@ namespace ActionRegulation
                     literalNode.addOutgoingEdge(newEdge);
                     newNode.addIncomingEdge(newEdge);
                 }
+
+                //literal mutex time!
+
+                foreach(LiteralNode literalNode in literalLayer)
+                {
+                    foreach(LiteralNode otherLiteralNode in literalLayer)
+                    {
+                        if(!literalNode.Equals(otherLiteralNode))
+                        {
+                            //negation
+                            if (literalNode.Literal.negationOf(otherLiteralNode.Literal))
+                            {
+                                literalNode.addMutex(otherLiteralNode);
+                                otherLiteralNode.addMutex(literalNode);
+                            }
+
+                            //inconsistent support
+                            foreach(Edge edge in literalNode.IncomingEdges)
+                            {
+                                PlanningGraphNode node = edge.From;
+
+                                int count = 0;
+
+                                foreach(Edge otherEdge in otherLiteralNode.IncomingEdges)
+                                {
+                                    PlanningGraphNode otherNode = otherEdge.From;
+
+                                    if (node.Mutex.Contains(otherNode))
+                                    {
+                                        count++;
+                                    }
+                                        
+                                }
+                                if(count >= literalNode.IncomingEdges.Count)
+                                {
+                                    node.addMutex(otherNode);           ////////////WORK IN PROGRESS
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //end of literal mutex time
             }
         }
 

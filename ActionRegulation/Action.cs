@@ -52,5 +52,22 @@ namespace ActionRegulation
             CertaintyEffect = 0;
             CompetenceEffect = 0;
         }
+
+        //actions are equal if they have the same name, preconditions, and effects
+        public override bool Equals(object obj)
+        {
+            Action action = obj as Action;
+
+            if (action == null)
+                return false;
+            return this.Name.Equals(action.Name) && 
+                this.PreConditions.Equals(action.PreConditions) &&
+                this.Effects.Equals(action.Effects);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Name.GetHashCode();
+        }
     }
 }

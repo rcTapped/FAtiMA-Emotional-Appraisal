@@ -17,6 +17,7 @@ namespace ActionRegulation
             Value = value;
         }
 
+        //literals are equal if they have the same name and boolean value
         public override bool Equals(object obj)
         {
             Literal literal = obj as Literal;
@@ -29,6 +30,15 @@ namespace ActionRegulation
         public override int GetHashCode()
         {
             return this.Name.GetHashCode();
+        }
+
+        public bool negationOf(Literal literal)
+        {
+            if (literal.Name.Equals(this.Name) && !literal.Value.Equals(this.Value))
+            {
+                return true;
+            }
+            return false;
         }
     }
 
