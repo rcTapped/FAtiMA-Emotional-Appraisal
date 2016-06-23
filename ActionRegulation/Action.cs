@@ -9,8 +9,8 @@ namespace ActionRegulation
     class Action
     {
         public string Name { get; set; }
-        public List<string> PreConditions { get; set; }
-        public List<string> Effects { get; set; }
+        public List<Literal> PreConditions { get; set; }
+        public List<Literal> Effects { get; set; }
         public float EnergyEffect { get; set; }
         public float IntegrityEffect { get; set; }
         public float AffiliationEffect { get; set; }
@@ -20,8 +20,8 @@ namespace ActionRegulation
         public Action(string name)
         {
             Name = name;
-            PreConditions = new List<string>();
-            Effects = new List<string>();
+            PreConditions = new List<Literal>();
+            Effects = new List<Literal>();
             EnergyEffect = 0;
             IntegrityEffect = 0;
             AffiliationEffect = 0;
@@ -29,7 +29,7 @@ namespace ActionRegulation
             CompetenceEffect = 0;
         }
 
-        public Action(string name, List<string> preConditions, List<string> effects)
+        public Action(string name, List<Literal> preConditions, List<Literal> effects)
         {
             Name = name;
             PreConditions = preConditions;
@@ -41,7 +41,7 @@ namespace ActionRegulation
             CompetenceEffect = 0;
         }
 
-        public Action(string name, List<string> preConditions, List<string> effects, float energyEffect, float integrityEffect, float affiliationEffect)
+        public Action(string name, List<Literal> preConditions, List<Literal> effects, float energyEffect, float integrityEffect, float affiliationEffect)
         {
             Name = name;
             PreConditions = preConditions;

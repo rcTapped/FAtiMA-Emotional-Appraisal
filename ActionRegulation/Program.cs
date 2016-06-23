@@ -12,6 +12,9 @@ namespace ActionRegulation
     {
         static void Main(string[] args)
         {
+            PlanningGraph graphPlan = new PlanningGraph();
+            graphPlan.birthdayDinnerExample();
+
             WorldState worldState = new WorldState();
             worldState.addState("chicken nuggets on sale");
             worldState.addState("rainy weather");
@@ -79,14 +82,14 @@ namespace ActionRegulation
             //Goal paintball = new Goal("paintball", new List<string>(new string[] { "plan with friends" }), -6, -1, 4);
 
             //actions
-            Action makeFood = new Action("make food", new List<string>(new string[] { "have groceries" }), new List<string>(new string[] { "have food" }), -0.2f, 0, 0);
-            Action getGroceries = new Action("get groceries", new List<string>(), new List<string>(new string[] { "have groceries" }), -1, 0, 0);
+            //Action makeFood = new Action("make food", new List<string>(new string[] { "have groceries" }), new List<string>(new string[] { "have food" }), -0.2f, 0, 0);
+            //Action getGroceries = new Action("get groceries", new List<string>(), new List<string>(new string[] { "have groceries" }), -1, 0, 0);
             
-            Action checkTransportation = new Action("check transportation", new List<string>(), new List<string>(new string[] { "have transportation" }), -0.1f, 0, 0);
+            //Action checkTransportation = new Action("check transportation", new List<string>(), new List<string>(new string[] { "have transportation" }), -0.1f, 0, 0);
 
-            Action makePlans = new Action("make plans", new List<string>(), new List<string>(new string[] { "plan with friends" }), -1, 0, 0);
+            //Action makePlans = new Action("make plans", new List<string>(), new List<string>(new string[] { "plan with friends" }), -1, 0, 0);
 
-            Action findPlaceToRest = new Action("find place to rest", new List<string>(), new List<string>(new string[] { "place to rest" }), -1, 0, 0);
+            //Action findPlaceToRest = new Action("find place to rest", new List<string>(), new List<string>(new string[] { "place to rest" }), -1, 0, 0);
 
             //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -127,8 +130,8 @@ namespace ActionRegulation
                     List<string> initialState = new List<string>(new string[] { "have(cake)" });
                     List<Action> actionList = new List<Action>();
 
-                    actionList.Add(new Action("eat(cake)", new List<string>(new string[] { "have(cake)" }), new List<string>(new string[] { "!have(cake)", "eaten(cake)" })));
-                    actionList.Add(new Action("bake(cake)", new List<string>(new string[] { "!have(cake)" }), new List<string>(new string[] { "have(cake)" })));
+                    //actionList.Add(new Action("eat(cake)", new List<string>(new string[] { "have(cake)" }), new List<string>(new string[] { "!have(cake)", "eaten(cake)" })));
+                    //actionList.Add(new Action("bake(cake)", new List<string>(new string[] { "!have(cake)" }), new List<string>(new string[] { "have(cake)" })));
 
                     //Goal cake = new Goal("cake", new List<string>(new string[] { "have(cake)", "eaten(cake)" }), 7, 0, 0);
 
@@ -142,19 +145,20 @@ namespace ActionRegulation
                 }
                 else if (input == "9")
                 {
-                    PlanningGraph graph = new PlanningGraph();
-                    graph.CakeExample();
+                    //BasicGraph graph = new BasicGraph();
+                    //graph.CakeExample();
+
+                    //graphPlan = new PlanningGraph();
+                    graphPlan.birthdayDinnerExample();
                 }
                 else if ( input == "10")
                 {
-                    List<string> test1 = new List<string>(new string[] { "chicken", "chicken", "bread" });
-                    List<string> test2 = new List<string>(new string[] { "chicken" });
-                    List<string> test4 = new List<string>();
-
-                    IEnumerable<string> test3 = test4.Except(test2);
-
-                    foreach(string val in test3)
-                        Console.WriteLine(val);
+                    Literal nugget = new Literal("nugget", true);
+                    List<Literal> test1 = new List<Literal>(new Literal[] { nugget, new Literal("bread", true), new Literal("chicken", false) });
+                    List<Literal> test2 = new List<Literal>(new Literal[] { nugget });
+                    List<Literal> list = test1.Except(test2).ToList();
+                    foreach (Literal lit in list)
+                        Console.WriteLine("name: " + lit.Name + " value: " + lit.Value);
                 }
 
                 //asset.AppraiseEvents(eventArg);

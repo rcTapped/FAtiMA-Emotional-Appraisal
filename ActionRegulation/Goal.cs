@@ -28,7 +28,7 @@ namespace ActionRegulation
         public Goal(string name, List<string> successConditions)
         {
             Name = name;
-            SuccessConditions = new List<string>();
+            SuccessConditions = successConditions;
             FailureConditions = new List<string>();
             EnergyEffect = 0;
             IntegrityEffect = 0;
@@ -41,7 +41,7 @@ namespace ActionRegulation
         {
             Name = name;
             SuccessConditions = successConditions;
-            FailureConditions = new List<string>();
+            FailureConditions = failureConditions;
             EnergyEffect = energyEffect;
             IntegrityEffect = integrityEffect;
             AffiliationEffect = affiliationEffect;
