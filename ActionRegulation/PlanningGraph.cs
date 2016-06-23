@@ -116,16 +116,24 @@ namespace ActionRegulation
 
                             //interference of actions
                             if (actionNode.PreconditionNegatedBy(otherActionNode))
+                            {
                                 actionNode.addMutex(otherActionNode);
-
+                                otherActionNode.addMutex(actionNode);
+                            }
+                            
                             //competing needs //////////////////////////CHECK AFTER LITERAL MUTEXES ARE DONE//////////////////////////////////
                             foreach (Edge edge in actionNode.IncomingEdges)
                             {
                                 //action node incoming edges should always be from literal nodes
                                 LiteralNode literalNode = (LiteralNode)edge.From;
 
-                                if (literalNode.Mutex.Contains(otherActionNode))
-                                    actionNode.addMutex(otherActionNode);
+                                foreach (Edge otherEdge in otherActionNode.IncomingEdges)
+                                {
+                                    LiteralNode otherLiteralNode = (LiteralNode)otherEdge.From;
+
+                                    if (literalNode.Mutex.Contains(otherLiteralNode))
+                                        actionNode.addMutex(otherActionNode);
+                                }
                             }
                         }                        
                     }
@@ -211,30 +219,33 @@ namespace ActionRegulation
                             if (literalNode.Literal.negationOf(otherLiteralNode.Literal))
                             {
                                 literalNode.addMutex(otherLiteralNode);
-                                otherLiteralNode.addMutex(literalNode);
                             }
 
                             //inconsistent support
-                            foreach(Edge edge in literalNode.IncomingEdges)
+                            int count = 0;
+
+                            foreach (Edge edge in literalNode.IncomingEdges)
                             {
                                 PlanningGraphNode node = edge.From;
+                                bool consistent = false;
 
-                                int count = 0;
-
-                                foreach(Edge otherEdge in otherLiteralNode.IncomingEdges)
+                                foreach (Edge otherEdge in otherLiteralNode.IncomingEdges)
                                 {
                                     PlanningGraphNode otherNode = otherEdge.From;
 
-                                    if (node.Mutex.Contains(otherNode))
+                                    if (!node.Mutex.Contains(otherNode))
                                     {
-                                        count++;
+                                        consistent = true;
+                                        break;
                                     }
-                                        
                                 }
-                                if(count >= literalNode.IncomingEdges.Count)
-                                {
-                                    node.addMutex(otherNode);           ////////////WORK IN PROGRESS
-                                }
+                                if(!consistent)
+                                    count++;                                
+                            }
+                            if (count >= literalNode.IncomingEdges.Count)
+                            {
+                                literalNode.addMutex(otherLiteralNode);
+                                otherLiteralNode.addMutex(literalNode);
                             }
                         }
                     }

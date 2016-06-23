@@ -34,7 +34,7 @@ namespace ActionRegulation
         //adds the mutex to the mutex list
         public void addMutex(PlanningGraphNode mutex)
         {
-            //if(!Mutex.Contains(mutex))
+            if(!Mutex.Contains(mutex))
                 Mutex.Add(mutex);
         }
     }
