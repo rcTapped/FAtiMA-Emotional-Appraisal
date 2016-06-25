@@ -5,8 +5,8 @@ namespace ActionRegulation
     class Goal
     {
         public string Name { get; set; }
-        public List<string> SuccessConditions { get; set; }
-        public List<string> FailureConditions { get; set; }
+        public List<Literal> SuccessConditions { get; set; }
+        public List<Literal> FailureConditions { get; set; }
         public float EnergyEffect { get; set; }
         public float IntegrityEffect { get; set; }
         public float AffiliationEffect { get; set; }
@@ -16,8 +16,8 @@ namespace ActionRegulation
         public Goal(string name)
         {
             Name = name;
-            SuccessConditions = new List<string>();
-            FailureConditions = new List<string>();
+            SuccessConditions = new List<Literal>();
+            FailureConditions = new List<Literal>();
             EnergyEffect = 0;
             IntegrityEffect = 0;
             AffiliationEffect = 0;
@@ -25,11 +25,11 @@ namespace ActionRegulation
             CompetenceEffect = 0;
         }
 
-        public Goal(string name, List<string> successConditions)
+        public Goal(string name, List<Literal> successConditions)
         {
             Name = name;
             SuccessConditions = successConditions;
-            FailureConditions = new List<string>();
+            FailureConditions = new List<Literal>();
             EnergyEffect = 0;
             IntegrityEffect = 0;
             AffiliationEffect = 0;
@@ -37,7 +37,7 @@ namespace ActionRegulation
             CompetenceEffect = 0;
         }
 
-        public Goal(string name, List<string> successConditions, List<string> failureConditions, float energyEffect, float integrityEffect, float affiliationEffect)
+        public Goal(string name, List<Literal> successConditions, List<Literal> failureConditions, float energyEffect, float integrityEffect, float affiliationEffect)
         {
             Name = name;
             SuccessConditions = successConditions;
@@ -49,7 +49,7 @@ namespace ActionRegulation
             CompetenceEffect = 0;
         }
 
-        public Goal(string name, List<string> successConditions, List<string> failureConditions, float energyEffect, float integrityEffect, float affiliationEffect, float certaintyEffect, float competenceEffect)
+        public Goal(string name, List<Literal> successConditions, List<Literal> failureConditions, float energyEffect, float integrityEffect, float affiliationEffect, float certaintyEffect, float competenceEffect)
         {
             Name = name;
             SuccessConditions = successConditions;

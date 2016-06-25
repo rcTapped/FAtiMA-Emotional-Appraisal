@@ -89,6 +89,20 @@ namespace ActionRegulation
             return false;
         }
 
+        //if at least one effect of this action is negated by the maintenance literal they are mutex
+        public bool EffectNegatedBy(LiteralNode literalNode)
+        {
+            foreach (Literal literal in this.Action.Effects)
+            {
+                if (literal.negationOf(literalNode.Literal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         //if at least one precondition of this action is negated by the other action they are mutex
         public bool PreconditionNegatedBy(ActionNode actionNode)
         {

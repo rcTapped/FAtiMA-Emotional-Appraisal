@@ -26,13 +26,15 @@ namespace ActionRegulation
         //even layers are literal layers, uneven layers are action layers
         public void buildPlanningGraph()
         {
+            bool solutionFound = false;
             int layerCount = 0;
-            List<LiteralNode> literalLayer = new List<LiteralNode>();           //keep track of current literal layer nodes
-            List<LiteralNode> previousLiteralLayer = new List<LiteralNode>();   //keep track of previous literal layer nodes
-            List<ActionNode> actionLayer;                                       //keep track of current action layer nodes
+            List<LiteralNode> literalLayer = new List<LiteralNode>();       //keep track of current literal layer nodes
+            List<LiteralNode> previousLiteralLayer;                         //keep track of previous literal layer nodes
+            List<PlanningGraphNode> actionLayer;                            //keep track of current action layer nodes
+            List<LiteralNode> maintenanceActions;                           //keep track of maintenance actions
 
             //create initial literal layer from initial state
-            foreach(Literal literal in initState)
+            foreach (Literal literal in initState)
             {
                 LiteralNode newNode = new LiteralNode(layerCount, literal);
 
@@ -40,13 +42,13 @@ namespace ActionRegulation
                 nodeList.Add(newNode);
             }
 
-            while (layerCount < 4)  // create layers 0 through 4 of the graph plan
+            while (layerCount < 4 && !solutionFound)  // create layers 0 through 4 of the graph plan unless a solution is found earlier
             {
                 layerCount++;
 
                 /////////////////////////////////////// action layer (uneven) ////////////////////////////////////////////////////
 
-                actionLayer = new List<ActionNode>();
+                actionLayer = new List<PlanningGraphNode>();
 
                 //for each action that is satisfied in the previous literal layer add the action node to the action layer and
                 //the edge between the literal nodes that satisfy the action node's preconditions
@@ -84,69 +86,13 @@ namespace ActionRegulation
                     }
                 }
 
-                //action mutex time!
-                
-                //make use of skip function and the counter i to perform only the needed comparison
-                //since negation of actions is reflexive it doesnt have to be checked both ways
-                //int i = 1;
-
-                //foreach(ActionNode actionNode in actionLayer)
-                //{
-                //    foreach(ActionNode otherActionNode in actionLayer.Skip(i))
-                //    {
-                //        if (actionNode.EffectNegatedBy(otherActionNode))
-                //        {
-                //            actionNode.addMutex(otherActionNode);
-                //            otherActionNode.addMutex(actionNode);
-                //        }
-                //    }
-                //    i++;
-                //}
-
-                //compare each action to each other action
-                foreach (ActionNode actionNode in actionLayer)
-                {
-                    foreach (ActionNode otherActionNode in actionLayer)
-                    {
-                        if (!actionNode.Equals(otherActionNode))
-                        {
-                            //inconsistent effects of actions
-                            if (actionNode.EffectNegatedBy(otherActionNode))
-                                actionNode.addMutex(otherActionNode);
-
-                            //interference of actions
-                            if (actionNode.PreconditionNegatedBy(otherActionNode))
-                            {
-                                actionNode.addMutex(otherActionNode);
-                                otherActionNode.addMutex(actionNode);
-                            }
-                            
-                            //competing needs //////////////////////////CHECK AFTER LITERAL MUTEXES ARE DONE//////////////////////////////////
-                            foreach (Edge edge in actionNode.IncomingEdges)
-                            {
-                                //action node incoming edges should always be from literal nodes
-                                LiteralNode literalNode = (LiteralNode)edge.From;
-
-                                foreach (Edge otherEdge in otherActionNode.IncomingEdges)
-                                {
-                                    LiteralNode otherLiteralNode = (LiteralNode)otherEdge.From;
-
-                                    if (literalNode.Mutex.Contains(otherLiteralNode))
-                                        actionNode.addMutex(otherActionNode);
-                                }
-                            }
-                        }                        
-                    }
-                }
-
-                //end of action mutex time
-
                 layerCount++;
 
                 ///////////////////////////////////////// literal layer (even) /////////////////////////////////////////////////////
 
                 previousLiteralLayer = literalLayer;
                 literalLayer = new List<LiteralNode>();
+                maintenanceActions = new List<LiteralNode>();
 
                 //add literals that are the effects of actions in previous action layer
                 foreach (ActionNode actionNode in actionLayer)
@@ -203,13 +149,67 @@ namespace ActionRegulation
                     }
 
                     Edge newEdge = new Edge(literalNode, newNode);
+                    maintenanceActions.Add(literalNode);
                     literalNode.addOutgoingEdge(newEdge);
                     newNode.addIncomingEdge(newEdge);
                 }
 
+                //action mutex time!
+
+                //compare each action to each other action
+                foreach (ActionNode node in actionLayer)
+                {
+                    //maintence actions mutexes
+                    foreach (LiteralNode maintenance in maintenanceActions)
+                    {
+                        if(node.EffectNegatedBy(maintenance))
+                        {
+                            node.addMutex(maintenance);
+                            maintenance.addMutex(node);
+                        }
+                    }
+
+                    foreach (ActionNode otherNode in actionLayer)
+                    {
+                        if (!node.Equals(otherNode) && otherNode is ActionNode)
+                        {
+                            //inconsistent effects of actions
+                            if (node.EffectNegatedBy(otherNode))
+                                node.addMutex(otherNode);
+
+                            //interference of actions
+                            if (node.PreconditionNegatedBy(otherNode))
+                            {
+                                node.addMutex(otherNode);
+                                otherNode.addMutex(node);
+                            }
+
+                            //competing needs
+                            foreach (Edge edge in node.IncomingEdges)
+                            {
+                                //action node incoming edges should always be from literal nodes
+                                LiteralNode literalNode = (LiteralNode)edge.From;
+
+                                foreach (Edge otherEdge in otherNode.IncomingEdges)
+                                {
+                                    LiteralNode otherLiteralNode = (LiteralNode)otherEdge.From;
+
+                                    if (literalNode.Mutex.Contains(otherLiteralNode))
+                                    {
+                                        node.addMutex(otherNode);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //end of action mutex time
+
                 //literal mutex time!
 
-                foreach(LiteralNode literalNode in literalLayer)
+                foreach (LiteralNode literalNode in literalLayer)
                 {
                     foreach(LiteralNode otherLiteralNode in literalLayer)
                     {
@@ -252,12 +252,38 @@ namespace ActionRegulation
                 }
 
                 //end of literal mutex time
+
+                //check for a possible solution
+                List<LiteralNode> goalList = new List<LiteralNode>();
+
+                foreach(Literal literal in goal.SuccessConditions)
+                {
+                    foreach(LiteralNode literalNode in literalLayer)
+                    {
+                        if (literal.Equals(literalNode.Literal) && (literalNode.Mutex.Except(goalList).Count() == literalNode.Mutex.Count))
+                            goalList.Add(literalNode);
+                    }
+                }
+
+                //all the literals of the goal success conditions are present in the deepest level of the graph and not mutex
+                if(goalList.Count >= goal.SuccessConditions.Count)
+                {
+                    findPlan(goalList);
+                }
+            }
+        }
+
+        public void findPlan(List<LiteralNode> goalList)
+        {
+            foreach(LiteralNode node in goalList)
+            {
+
             }
         }
 
         public void birthdayDinnerExample()
         {
-            goal = new Goal("birthdayDinner", new List<string>(new string[] { "not(garbage)", "dinner", "present" }));
+            goal = new Goal("birthdayDinner", new List<Literal>(new Literal[] { new Literal("garbage", false), new Literal("dinner", true), new Literal("present", true) }));
 
             Action cook = new Action("cook", new List<Literal>(new Literal[] { new Literal("clean", true) }), new List<Literal>(new Literal[] { new Literal("dinner", true) }));
             Action wrap = new Action("wrap", new List<Literal>(new Literal[] { new Literal("quiet", true) }), new List<Literal>(new Literal[] { new Literal("present", true) }));
@@ -269,7 +295,7 @@ namespace ActionRegulation
             actionList.Add(carry);
             actionList.Add(dolly);
 
-            initState = new List<Literal>(new Literal[] { new Literal("garbage", true), new Literal("clean", true), new Literal("quiet", true) });
+            initState = new List<Literal>(new Literal[] { new Literal("clean", true), new Literal("garbage", true), new Literal("quiet", true) });
 
             buildPlanningGraph();
         }
